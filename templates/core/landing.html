@@ -1,15 +1,35 @@
 {% extends "base.html" %}
 {% block title %}Mis Vigencias{% endblock %}
-{% block content %}
-    <h1 style="margin-top:8px;">Tu vehículo, siempre al día.</h1>
-    <p>Registra tus fechas de vencimiento (SOAT, tecnomecánica, seguro, impuesto) y recibe recordatorios automáticos.</p>
 
-    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:16px;">
-        <a href="/accounts/login/" style="padding:10px 14px; border:1px solid #000; text-decoration:none;">Ingresar</a>
-        <a href="{% url 'register' %}" style="padding:10px 14px; border:1px solid #000; text-decoration:none;">Crear cuenta gratis</a>
+{% block content %}
+<div class="row align-items-center g-4">
+    <div class="col-lg-7">
+        <h1 class="display-6 fw-bold">Tu vehículo, siempre al día.</h1>
+        <p class="lead text-secondary mb-4">
+        Registra vencimientos (SOAT, tecnomecánica, seguro, impuesto) y recibe recordatorios automáticos.
+        </p>
+
+        <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-primary btn-lg" href="{% url 'account_signup' %}">Crear cuenta gratis</a>
+        <a class="btn btn-outline-secondary btn-lg" href="{% url 'account_login' %}">Ingresar</a>
+        </div>
+
+        <div class="mt-4 small text-muted">
+        Email gratis (hasta 3 vigencias). PRO habilita vigencias ilimitadas + WhatsApp (próximamente).
+        </div>
     </div>
 
-    <p style="margin-top:20px; font-size: 13px;">
-        Email gratis (hasta 3 vigencias). Plan PRO habilita vigencias ilimitadas y WhatsApp.
-    </p>
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="fw-semibold mb-2">¿Qué ganas?</h5>
+            <ul class="mb-0 text-secondary">
+            <li>Evitas multas y olvidos</li>
+            <li>Todo en un solo lugar</li>
+            <li>Alertas por email (gratis)</li>
+            </ul>
+        </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -28,7 +28,7 @@ def env_bool(name: str, default: bool = False) -> bool:
 
 # Core
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-secret")
-DEBUG = env_bool("DEBUG", True)
+DEBUG = env_bool("DJANGO_DEBUG", env_bool("DEBUG", True))
 
 ALLOWED_HOSTS = [
     h.strip()
@@ -36,6 +36,10 @@ ALLOWED_HOSTS = [
     if h.strip()
 ]
 
+_csrf = os.getenv("CSRF_TRUSTED_ORIGINS", "").strip()
+CSRF_TRUSTED_ORIGINS = [x.strip() for x in _csrf.split(",") if x.strip()] if _csrf else []
+
+SITE_ID = int(os.getenv("SITE_ID", "1"))
 
 # Application definition
 
@@ -46,6 +50,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # requerido para allauth
+    'django.contrib.sites',
+
+    # allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
+    # apps del proyecto
     "core.apps.CoreConfig",
     "reminders",
     "billing",
@@ -58,6 +72,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    "allauth.account.middleware.AccountMiddleware",
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 

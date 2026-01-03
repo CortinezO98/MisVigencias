@@ -153,7 +153,7 @@ def pro_request(request):
         )
 
         # Te llega a ti (configuras este correo en settings/.env)
-        admin_email = os.getenv("ADMIN_NOTIFY_EMAIL", "")
+        admin_email = getattr(settings, "ADMIN_NOTIFY_EMAIL", "")
         if admin_email:
             send_mail(subject, body, None, [admin_email], fail_silently=True)
 

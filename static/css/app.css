@@ -1,0 +1,15 @@
+/* Ajustes mínimos y profesionales */
+.navbar-brand { letter-spacing: .2px; }
+.card { border: 0; }
+.card.shadow-sm { box-shadow: 0 .25rem .75rem rgba(0,0,0,.05) !important; }
+.btn-primary { background-color: #0056b3; border-color: #0056b3; }  
+.btn-primary:hover { background-color: #004085; border-color: #004085; }
+.form-control { border-radius: .25rem; }
+.form-control:focus { border-color: #80bdff; box-shadow: 0 0 0 .2rem rgba(0,123,255,.25); }
+.table-hover tbody tr:hover { background-color: #f1f1f1; }
+.footer { background-color: #f8f9fa; padding: 1rem 0; text-align: center; font-size: .875rem; color: #6c757d; }
+.alert { border-radius: .25rem; }
+.alert-success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+.alert-danger { background-color: #f8d7da; border-color: #f5c2c7; color: #721c24; }
+.alert-warning { background-color: #fff3cd; border-color: #ffecb5; color: #856404; }
+.alert-info { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }   

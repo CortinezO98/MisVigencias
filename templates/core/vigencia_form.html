@@ -1,35 +1,49 @@
 {% extends "base.html" %}
 {% block content %}
-<h3>Agregar vigencia</h3>
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="mb-3">Nueva vigencia</h4>
 
-{% if not vehicles %}
-    <p>Primero debes crear un vehículo.</p>
-    <a href="{% url 'vehicle_create' %}">Crear vehículo</a>
-    {% else %}
-    <form method="post">
-    {% csrf_token %}
+            <form method="post" class="vstack gap-3">
+            {% csrf_token %}
 
-    <label>Vehículo</label><br>
-    <select name="vehicle_id" style="width:100%; padding:8px;">
-        {% for ve in vehicles %}
-        <option value="{{ ve.id }}">{{ ve.alias }} {% if ve.plate %}({{ ve.plate }}){% endif %}</option>
-        {% endfor %}
-    </select><br><br>
+            <div>
+                <label class="form-label">Vehículo</label>
+                <select name="vehicle_id" class="form-select" required>
+                <option value="" selected disabled>Selecciona…</option>
+                {% for v in vehicles %}
+                    <option value="{{ v.id }}">{{ v.alias }}{% if v.plate %} ({{ v.plate }}){% endif %}</option>
+                {% endfor %}
+                </select>
+            </div>
 
-    <label>Tipo</label><br>
-    <select name="tipo" style="width:100%; padding:8px;">
-        <option value="SOAT">SOAT</option>
-        <option value="TECNO">Tecnomecánica</option>
-        <option value="SEGURO">Seguro</option>
-        <option value="IMPUESTO">Impuesto</option>
-        <option value="OTRO">Otro</option>
-    </select><br><br>
+            <div>
+                <label class="form-label">Tipo</label>
+                <select name="tipo" class="form-select" required>
+                <option value="" selected disabled>Selecciona…</option>
+                <option value="SOAT">SOAT</option>
+                <option value="TECNO">Tecnomecánica</option>
+                <option value="SEGURO">Seguro</option>
+                <option value="IMPUESTO">Impuesto</option>
+                <option value="OTRO">Otro</option>
+                </select>
+            </div>
 
-    <label>Fecha de vencimiento</label><br>
-    <input type="date" name="fecha_vencimiento" style="width:100%; padding:8px;"><br><br>
+            <div>
+                <label class="form-label">Fecha de vencimiento</label>
+                <input type="date" name="fecha_vencimiento" class="form-control" required>
+            </div>
 
-    <button type="submit" style="padding:10px 14px;">Guardar</button>
-    <a href="{% url 'dashboard' %}">Cancelar</a>
-</form>
-{% endif %}
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary">Guardar</button>
+                <a class="btn btn-outline-secondary" href="{% url 'dashboard' %}">Cancelar</a>
+            </div>
+
+            </form>
+        </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
