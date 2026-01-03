@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Solicitar PRO</h3>
+<p>Déjanos una nota (opcional). Te contactaremos para activar PRO.</p>
+
+<form method="post">
+    {% csrf_token %}
+    <textarea name="note" rows="4" style="width:100%; padding:8px;" placeholder="Ej: Quiero WhatsApp y vigencias ilimitadas."></textarea><br><br>
+    <button type="submit" style="padding:10px 14px;">Enviar solicitud</button>
+    <a href="{% url 'dashboard' %}">Cancelar</a>
+</form>
+{% endblock %}

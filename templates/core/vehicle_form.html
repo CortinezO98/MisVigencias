@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Agregar vehículo</h3>
+<form method="post">
+    {% csrf_token %}
+    <label>Nombre (alias)</label><br>
+    <input name="alias" placeholder="Ej: Mi moto, Duster" style="width:100%; padding:8px;"><br><br>
+
+    <label>Placa (opcional)</label><br>
+    <input name="plate" placeholder="ABC123" style="width:100%; padding:8px;"><br><br>
+
+    <button type="submit" style="padding:10px 14px;">Guardar</button>
+    <a href="{% url 'dashboard' %}">Cancelar</a>
+</form>
+{% endblock %}

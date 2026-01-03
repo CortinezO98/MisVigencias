@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>{% block title %}Mis Vigencias{% endblock %}</title>
+</head>
+<body style="font-family: system-ui; max-width: 960px; margin: 0 auto; padding: 16px;">
+    <header style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="margin:0;">Mis Vigencias</h2>
+        <nav>
+        {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}">Dashboard</a> |
+            <a href="/accounts/logout/">Salir</a>
+        {% else %}
+            <a href="/accounts/login/">Ingresar</a>
+        {% endif %}
+        </nav>
+    </header>
+
+    {% if messages %}
+        <div style="margin: 12px 0;">
+        {% for message in messages %}
+            <div style="padding:10px; border:1px solid #ddd; margin-bottom:6px;">
+            {{ message }}
+            </div>
+        {% endfor %}
+        </div>
+    {% endif %}
+
+    <main style="margin-top: 16px;">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer style="margin-top: 24px; border-top:1px solid #eee; padding-top:12px; font-size: 12px;">
+        © {{ now|default:"" }} Mis Vigencias — Recordatorios de SOAT, tecnomecánica y más.
+    </footer>
+</body>
+</html>

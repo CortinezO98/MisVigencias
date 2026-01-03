@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Mis Vigencias{% endblock %}
+{% block content %}
+    <h1 style="margin-top:8px;">Tu vehículo, siempre al día.</h1>
+    <p>Registra tus fechas de vencimiento (SOAT, tecnomecánica, seguro, impuesto) y recibe recordatorios automáticos.</p>
+
+    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:16px;">
+        <a href="/accounts/login/" style="padding:10px 14px; border:1px solid #000; text-decoration:none;">Ingresar</a>
+        <a href="{% url 'register' %}" style="padding:10px 14px; border:1px solid #000; text-decoration:none;">Crear cuenta gratis</a>
+    </div>
+
+    <p style="margin-top:20px; font-size: 13px;">
+        Email gratis (hasta 3 vigencias). Plan PRO habilita vigencias ilimitadas y WhatsApp.
+    </p>
+{% endblock %}

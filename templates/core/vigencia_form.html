@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Agregar vigencia</h3>
+
+{% if not vehicles %}
+    <p>Primero debes crear un vehículo.</p>
+    <a href="{% url 'vehicle_create' %}">Crear vehículo</a>
+    {% else %}
+    <form method="post">
+    {% csrf_token %}
+
+    <label>Vehículo</label><br>
+    <select name="vehicle_id" style="width:100%; padding:8px;">
+        {% for ve in vehicles %}
+        <option value="{{ ve.id }}">{{ ve.alias }} {% if ve.plate %}({{ ve.plate }}){% endif %}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label>Tipo</label><br>
+    <select name="tipo" style="width:100%; padding:8px;">
+        <option value="SOAT">SOAT</option>
+        <option value="TECNO">Tecnomecánica</option>
+        <option value="SEGURO">Seguro</option>
+        <option value="IMPUESTO">Impuesto</option>
+        <option value="OTRO">Otro</option>
+    </select><br><br>
+
+    <label>Fecha de vencimiento</label><br>
+    <input type="date" name="fecha_vencimiento" style="width:100%; padding:8px;"><br><br>
+
+    <button type="submit" style="padding:10px 14px;">Guardar</button>
+    <a href="{% url 'dashboard' %}">Cancelar</a>
+</form>
+{% endif %}
+{% endblock %}

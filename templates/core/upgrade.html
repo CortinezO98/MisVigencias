@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Llegaste al límite del plan Gratis</h3>
+<p>En el plan Gratis puedes tener hasta <b>3 vigencias activas</b>.</p>
+<p>Con <b>PRO</b> tienes vigencias ilimitadas y (próximamente) recordatorios por WhatsApp.</p>
+
+<h4>¿Cómo activar PRO?</h4>
+<ul>
+    <li>Haz el pago (Nequi/Daviplata) y sube el comprobante.</li>
+    <li>Te activamos PRO en horario laboral.</li>
+</ul>
+<a href="{% url 'pro_request' %}" style="padding:10px 14px; border:1px solid #000; text-decoration:none;">
+    Solicitar PRO 
+</a>
+<a href="{% url 'dashboard' %}">Volver al dashboard</a>
+{% endblock %}

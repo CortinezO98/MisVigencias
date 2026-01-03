@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Crear cuenta</h3>
+<form method="post">
+    {% csrf_token %}
+    <label>Usuario</label><br>
+    <input name="username" style="width:100%; padding:8px;"><br><br>
+
+    <label>Correo</label><br>
+    <input name="email" type="email" style="width:100%; padding:8px;"><br><br>
+
+    <label>Contraseña</label><br>
+    <input name="password" type="password" style="width:100%; padding:8px;"><br><br>
+
+    <button type="submit" style="padding:10px 14px;">Crear cuenta</button>
+    <a href="/accounts/login/">Ya tengo cuenta</a>
+</form>
+{% endblock %}

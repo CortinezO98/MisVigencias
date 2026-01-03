@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+    <h3>Hola, {{ user.username }} 👋</h3>
+    <p>Plan: <b>{{ plan }}</b> — Vigencias activas: <b>{{ total_vigencias }}</b></p>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin: 12px 0;">
+        <a href="{% url 'vehicle_create' %}">➕ Agregar vehículo</a>
+        <a href="{% url 'vigencia_create' %}">➕ Agregar vigencia</a>
+    </div>
+
+    <h4>Mis vigencias activas</h4>
+    {% if vigencias %}
+        <table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse; width:100%;">
+        <tr>
+            <th>Vehículo</th>
+            <th>Tipo</th>
+            <th>Vence</th>
+            <th>Días</th>
+            <th></th>
+        </tr>
+        {% for v in vigencias %}
+            <tr>
+            <td>{{ v.vehicle.alias }}</td>
+            <td>{{ v.get_tipo_display }}</td>
+            <td>{{ v.fecha_vencimiento }}</td>
+            <td>{{ v.days_left }}</td>
+            <td>
+                <a href="{% url 'vigencia_mark_renewed' v.id %}">✅ Renovée</a>
+            </td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% else %}
+        <p>No tienes vigencias aún. Agrega la primera.</p>
+    {% endif %}
+{% endblock %}
