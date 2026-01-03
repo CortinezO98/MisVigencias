@@ -2,65 +2,339 @@
 {% load i18n %}
 {% load socialaccount %}
 
-{% block title %}Crear cuenta | Mis Vigencias{% endblock %}
+{% block title %}Crear cuenta en Mis Vigencias{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-5">
-        <div class="card shadow-sm">
-        <div class="card-body p-4">
-            <h4 class="mb-2">Crear cuenta</h4>
-            <p class="text-secondary mb-3">Empieza gratis y recibe recordatorios por email.</p>
-
-            <!-- Social signup -->
-            <div class="d-grid gap-2 mb-3">
-            <a class="btn btn-outline-dark" href="{% provider_login_url 'google' process='signup' %}">
-                Continuar con Google
-            </a>
-            <a class="btn btn-outline-primary" href="{% provider_login_url 'facebook' process='signup' %}">
-                Continuar con Facebook
-            </a>
-            </div>
-
-            <div class="text-center text-secondary small mb-3">o crea tu cuenta con email</div>
-
-            <form method="post" action="{% url 'account_signup' %}" class="vstack gap-3">
-            {% csrf_token %}
-
-            {% if form.non_field_errors %}
-                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-            {% endif %}
-
-            {% for field in form %}
-                <div>
-                <label class="form-label">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                    <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
-                {% endif %}
-                {% if field.help_text %}
-                    <div class="text-secondary small">{{ field.help_text|safe }}</div>
-                {% endif %}
+<div class="fade-in">
+    <div class="row justify-content-center align-items-center min-vh-75">
+        <div class="col-lg-8">
+            <div class="row g-4">
+                <!-- Panel izquierdo - Beneficios -->
+                <div class="col-lg-6 d-none d-lg-block">
+                    <div class="card border-0 bg-success text-white h-100">
+                        <div class="card-body p-5 d-flex flex-column justify-content-center">
+                            <div class="mb-5">
+                                <h1 class="display-6 fw-bold mb-4">
+                                    <i class="bi bi-rocket-takeoff me-2"></i>Comienza gratis
+                                </h1>
+                                <p class="lead opacity-75">
+                                    Únete a miles de colombianos que ya mantienen sus documentos vehiculares al día.
+                                </p>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h5 class="fw-bold mb-3">
+                                    <i class="bi bi-gift-fill me-2"></i>Tu plan Gratis incluye:
+                                </h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-3 d-flex">
+                                        <i class="bi bi-check-circle-fill opacity-75 me-3 fs-5"></i>
+                                        <span><strong>Hasta 3 vigencias</strong> activas simultáneas</span>
+                                    </li>
+                                    <li class="mb-3 d-flex">
+                                        <i class="bi bi-check-circle-fill opacity-75 me-3 fs-5"></i>
+                                        <span><strong>Alertas por email</strong> antes del vencimiento</span>
+                                    </li>
+                                    <li class="mb-3 d-flex">
+                                        <i class="bi bi-check-circle-fill opacity-75 me-3 fs-5"></i>
+                                        <span><strong>Dashboard completo</strong> con estado de todos tus documentos</span>
+                                    </li>
+                                    <li class="d-flex">
+                                        <i class="bi bi-check-circle-fill opacity-75 me-3 fs-5"></i>
+                                        <span><strong>Sin tarjeta de crédito</strong> requerida</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mt-auto pt-5">
+                                <div class="alert bg-white bg-opacity-10 border-0">
+                                    <div class="d-flex">
+                                        <div class="me-3">
+                                            <i class="bi bi-arrow-up-circle fs-2 opacity-75"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0 small opacity-75">
+                                                <strong>¿Necesitas más?</strong> Actualiza a PRO cuando quieras por solo $19.900/año
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            {% endfor %}
-
-            <button class="btn btn-primary w-100" type="submit">Crear cuenta</button>
-            </form>
-
-            <div class="mt-3 small">
-            ¿Ya tienes cuenta? <a href="{% url 'account_login' %}">Ingresar</a>
+                
+                <!-- Panel derecho - Formulario -->
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-lg">
+                        <div class="card-body p-4 p-md-5">
+                            <!-- Logo y título -->
+                            <div class="text-center mb-4">
+                                <div class="bg-success bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
+                                    <i class="bi bi-person-plus text-success fs-2"></i>
+                                </div>
+                                <h2 class="h3 fw-bold mb-2">Crear cuenta gratuita</h2>
+                                <p class="text-muted">
+                                    Regístrate en 1 minuto y empieza a organizar tus documentos
+                                </p>
+                            </div>
+                            
+                            <!-- Botones de redes sociales -->
+                            {% get_providers as socialaccount_providers %}
+                            {% if socialaccount_providers %}
+                            <div class="mb-4">
+                                <div class="d-grid gap-2">
+                                    <a class="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center" href="{% provider_login_url 'google' %}">
+                                        <i class="bi bi-google me-3 fs-5"></i>
+                                        <span>Continuar con Google</span>
+                                    </a>
+                                    <a class="btn btn-outline-primary btn-lg d-flex align-items-center justify-content-center"href="{% provider_login_url 'facebook' %}">
+                                        <i class="bi bi-facebook me-3 fs-5"></i>
+                                        <span>Continuar con Facebook</span>
+                                    </a>
+                                </div>
+                                
+                                <div class="divider my-4">
+                                    <span class="text-muted small px-3 bg-white position-relative">
+                                        O regístrate con tu correo
+                                    </span>
+                                    <hr class="position-absolute w-100 top-50" style="z-index: -1;">
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Formulario de registro -->
+                            <form method="post" action="{% url 'account_signup' %}" class="needs-validation" novalidate>
+                                {% csrf_token %}
+                                
+                                {% if form.non_field_errors %}
+                                <div class="alert alert-danger">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    {{ form.non_field_errors }}
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Campo de email -->
+                                <div class="mb-4">
+                                    <label for="id_email" class="form-label fw-semibold">
+                                        <i class="bi bi-envelope me-1"></i>Correo electrónico
+                                    </label>
+                                    <input type="email" name="email" id="id_email" class="form-control form-control-lg {% if form.email.errors %}is-invalid{% endif %}" placeholder="tu@correo.com" value="{{ form.email.value|default:'' }}" required>
+                                    {% if form.email.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.email.errors|striptags }}
+                                    </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        Usaremos este correo para enviarte los recordatorios
+                                    </div>
+                                </div>
+                                
+                                <!-- Campo de nombre de usuario (si aplica) -->
+                                {% if form.username %}
+                                <div class="mb-4">
+                                    <label for="id_username" class="form-label fw-semibold">
+                                        <i class="bi bi-person-circle me-1"></i>Nombre de usuario
+                                    </label>
+                                    <input type="text" name="username" id="id_username" class="form-control form-control-lg {% if form.username.errors %}is-invalid{% endif %}" placeholder="Ej: juan.perez" value="{{ form.username.value|default:'' }}" required>
+                                    {% if form.username.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.username.errors|striptags }}
+                                    </div>
+                                    {% endif %}
+                                    {% if form.username.help_text %}
+                                    <div class="form-text">
+                                        {{ form.username.help_text }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Campo de contraseña 1 -->
+                                <div class="mb-4">
+                                    <label for="id_password1" class="form-label fw-semibold">
+                                        <i class="bi bi-lock me-1"></i>Contraseña
+                                    </label>
+                                    <input type="password" name="password1" id="id_password1" class="form-control form-control-lg {% if form.password1.errors %}is-invalid{% endif %}" placeholder="••••••••" required>
+                                    {% if form.password1.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.password1.errors|striptags }}
+                                    </div>
+                                    {% endif %}
+                                    {% if form.password1.help_text %}
+                                    <div class="form-text small">
+                                        {{ form.password1.help_text }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Campo de contraseña 2 -->
+                                <div class="mb-4">
+                                    <label for="id_password2" class="form-label fw-semibold">
+                                        <i class="bi bi-lock-fill me-1"></i>Confirmar contraseña
+                                    </label>
+                                    <input type="password" name="password2" id="id_password2" class="form-control form-control-lg {% if form.password2.errors %}is-invalid{% endif %}" placeholder="••••••••" required>
+                                    {% if form.password2.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.password2.errors|striptags }}
+                                    </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        Repite tu contraseña para confirmar
+                                    </div>
+                                </div>
+                                
+                                <!-- Términos y condiciones -->
+                                <div class="mb-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input {% if form.terms.errors %}is-invalid{% endif %}" type="checkbox" name="terms" id="id_terms" {% if form.terms.value %}checked{% endif %} required>
+                                        <label class="form-check-label small" for="id_terms">
+                                            Acepto los <a href="#" class="text-decoration-none">Términos de servicio</a> 
+                                            y la <a href="#" class="text-decoration-none">Política de privacidad</a> de Mis Vigencias
+                                        </label>
+                                        {% if form.terms.errors %}
+                                        <div class="invalid-feedback">
+                                            {{ form.terms.errors|striptags }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Botón de submit -->
+                                <div class="d-grid mb-4">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="bi bi-person-plus me-2"></i>Crear mi cuenta gratuita
+                                    </button>
+                                </div>
+                                
+                                <!-- Redireccion si existe -->
+                                {% if redirect_field_value %}
+                                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+                                {% endif %}
+                            </form>
+                            
+                            <!-- Enlace a login -->
+                            <div class="text-center pt-3 border-top">
+                                <p class="text-muted mb-0">
+                                    ¿Ya tienes una cuenta?
+                                    <a href="{% url 'account_login' %}" class="text-decoration-none fw-semibold">
+                                        Ingresar a mi cuenta
+                                    </a>
+                                </p>
+                            </div>
+                            
+                            <!-- Información adicional -->
+                            <div class="mt-4">
+                                <div class="card bg-light border-0">
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-4 text-center">
+                                                <div class="text-primary">
+                                                    <i class="bi bi-calendar-check fs-3"></i>
+                                                </div>
+                                                <div class="small">Recordatorios</div>
+                                            </div>
+                                            <div class="col-4 text-center">
+                                                <div class="text-success">
+                                                    <i class="bi bi-shield-check fs-3"></i>
+                                                </div>
+                                                <div class="small">100% Seguro</div>
+                                            </div>
+                                            <div class="col-4 text-center">
+                                                <div class="text-warning">
+                                                    <i class="bi bi-clock-history fs-3"></i>
+                                                </div>
+                                                <div class="small">Siempre Gratis</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
         </div>
     </div>
 </div>
 
+<!-- Script para manejar la validación del formulario -->
 <script>
-  // Bootstrap classes para inputs de allauth (sin tocar python)
-    document.querySelectorAll("input, select, textarea").forEach(el => {
-        if (!el.classList.contains("form-control") && el.type !== "checkbox") {
-        el.classList.add("form-control");
-        }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Aplicar clases de Bootstrap a los campos de allauth
+        const fields = ['id_email', 'id_username', 'id_password1', 'id_password2'];
+        fields.forEach(function(fieldId) {
+            const input = document.getElementById(fieldId);
+            if (input && !input.classList.contains('form-control')) {
+                input.classList.add('form-control', 'form-control-lg');
+            }
+        });
+        
+        // Validación del formulario
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+        
+        // Mostrar/ocultar contraseña (opcional)
+        const passwordInputs = document.querySelectorAll('input[type="password"]');
+        passwordInputs.forEach(function(input, index) {
+            const parent = input.parentElement;
+            const toggleButton = document.createElement('button');
+            toggleButton.type = 'button';
+            toggleButton.className = 'btn btn-outline-secondary btn-sm position-absolute end-0 top-50 me-3';
+            toggleButton.innerHTML = '<i class="bi bi-eye"></i>';
+            toggleButton.style.transform = 'translateY(-50%)';
+            
+            // Solo para el primer campo de contraseña
+            if (index === 0) {
+                parent.style.position = 'relative';
+                parent.appendChild(toggleButton);
+                
+                toggleButton.addEventListener('click', function() {
+                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                    input.setAttribute('type', type);
+                    toggleButton.innerHTML = type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
+                });
+            }
+        });
     });
 </script>
+
+<!-- Estilos adicionales para esta página -->
+<style>
+    .min-vh-75 {
+        min-height: 75vh;
+    }
+    
+    .divider {
+        position: relative;
+        text-align: center;
+    }
+    
+    .divider span {
+        background-color: white;
+        padding: 0 15px;
+        z-index: 1;
+    }
+    
+    .divider hr {
+        border-top: 1px solid #dee2e6;
+        margin: 0;
+    }
+    
+    .form-control-lg {
+        padding: 0.75rem 1rem;
+    }
+</style>
 {% endblock %}

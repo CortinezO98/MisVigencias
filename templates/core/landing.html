@@ -1,35 +1,121 @@
 {% extends "base.html" %}
-{% block title %}Mis Vigencias{% endblock %}
+{% block title %}Mis Vigencias - Recordatorios de SOAT y Tecnomecánica{% endblock %}
 
 {% block content %}
-<div class="row align-items-center g-4">
-    <div class="col-lg-7">
-        <h1 class="display-6 fw-bold">Tu vehículo, siempre al día.</h1>
-        <p class="lead text-secondary mb-4">
-        Registra vencimientos (SOAT, tecnomecánica, seguro, impuesto) y recibe recordatorios automáticos.
-        </p>
+<div class="fade-in">
+    <!-- Hero Section -->
+    <section class="py-5">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <h1 class="display-5 fw-bold mb-4">
+                    Nunca más olvides el <span class="text-gradient">SOAT</span> o la <span class="text-gradient">Tecnomecánica</span>
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Sistema inteligente de recordatorios para vencimientos vehiculares en Colombia. 
+                    Mantén tus documentos al día y evita multas con alertas automáticas.
+                </p>
+                
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <a class="btn btn-primary btn-lg px-4" href="{% url 'account_signup' %}">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Comenzar gratis
+                    </a>
+                    <a class="btn btn-outline-secondary btn-lg px-4" href="{% url 'account_login' %}">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar
+                    </a>
+                </div>
+                
+                <div class="d-flex align-items-center text-muted">
+                    <i class="bi bi-shield-check text-success me-2"></i>
+                    <small>Plan Gratis: hasta 3 vigencias · Plan PRO: Ilimitado + WhatsApp</small>
+                </div>
+            </div>
+            
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-4">
+                            <i class="bi bi-trophy me-2 text-warning"></i>Beneficios
+                        </h4>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-3 d-flex">
+                                <i class="bi bi-check-circle-fill text-success me-3 fs-5"></i>
+                                <div>
+                                    <h6 class="fw-semibold mb-1">Evita multas costosas</h6>
+                                    <p class="text-muted small mb-0">Alertas antes de que tus documentos venzan</p>
+                                </div>
+                            </li>
+                            <li class="mb-3 d-flex">
+                                <i class="bi bi-check-circle-fill text-success me-3 fs-5"></i>
+                                <div>
+                                    <h6 class="fw-semibold mb-1">Todo en un solo lugar</h6>
+                                    <p class="text-muted small mb-0">SOAT, tecnomecánica, seguros e impuestos</p>
+                                </div>
+                            </li>
+                            <li class="d-flex">
+                                <i class="bi bi-check-circle-fill text-success me-3 fs-5"></i>
+                                <div>
+                                    <h6 class="fw-semibold mb-1">Alertas múltiples</h6>
+                                    <p class="text-muted small mb-0">Email (gratis) y WhatsApp (PRO)</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <div class="d-flex flex-wrap gap-2">
-        <a class="btn btn-primary btn-lg" href="{% url 'account_signup' %}">Crear cuenta gratis</a>
-        <a class="btn btn-outline-secondary btn-lg" href="{% url 'account_login' %}">Ingresar</a>
+    <!-- Features Section -->
+    <section class="py-5 bg-light rounded-4 my-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3">¿Cómo funciona?</h2>
+            <p class="text-muted lead">En solo 3 pasos mantén tus documentos al día</p>
         </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center p-3">
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-4 d-inline-block mb-3">
+                        <i class="bi bi-truck-front fs-1 text-primary"></i>
+                    </div>
+                    <h4 class="h5 fw-bold mb-3">1. Registra tu vehículo</h4>
+                    <p class="text-muted">Agrega tus vehículos con un alias y placa (opcional)</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="text-center p-3">
+                    <div class="bg-success bg-opacity-10 rounded-circle p-4 d-inline-block mb-3">
+                        <i class="bi bi-calendar-check fs-1 text-success"></i>
+                    </div>
+                    <h4 class="h5 fw-bold mb-3">2. Agrega vigencias</h4>
+                    <p class="text-muted">Registra fechas de vencimiento de SOAT, tecnomecánica, etc.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="text-center p-3">
+                    <div class="bg-warning bg-opacity-10 rounded-circle p-4 d-inline-block mb-3">
+                        <i class="bi bi-bell-fill fs-1 text-warning"></i>
+                    </div>
+                    <h4 class="h5 fw-bold mb-3">3. Recibe alertas</h4>
+                    <p class="text-muted">Te notificamos antes de que tus documentos venzan</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <div class="mt-4 small text-muted">
-        Email gratis (hasta 3 vigencias). PRO habilita vigencias ilimitadas + WhatsApp (próximamente).
+    <!-- CTA Section -->
+    <section class="py-5 text-center">
+        <div class="card border-0 bg-primary text-white">
+            <div class="card-body p-5">
+                <h2 class="fw-bold mb-3">¿Listo para comenzar?</h2>
+                <p class="lead mb-4 opacity-75">Únete a miles de colombianos que ya mantienen sus vehículos en regla</p>
+                <a href="{% url 'account_signup' %}" class="btn btn-light btn-lg px-5">
+                    <i class="bi bi-rocket-takeoff me-2"></i>Crear cuenta gratuita
+                </a>
+            </div>
         </div>
-    </div>
-
-    <div class="col-lg-5">
-        <div class="card shadow-sm">
-        <div class="card-body">
-            <h5 class="fw-semibold mb-2">¿Qué ganas?</h5>
-            <ul class="mb-0 text-secondary">
-            <li>Evitas multas y olvidos</li>
-            <li>Todo en un solo lugar</li>
-            <li>Alertas por email (gratis)</li>
-            </ul>
-        </div>
-        </div>
-    </div>
+    </section>
 </div>
 {% endblock %}

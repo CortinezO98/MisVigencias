@@ -2,58 +2,248 @@
 {% load i18n %}
 {% load socialaccount %}
 
-{% block title %}Ingresar | Mis Vigencias{% endblock %}
+{% block title %}Ingresar a Mis Vigencias{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-5">
-        <div class="card shadow-sm">
-        <div class="card-body p-4">
-            <h4 class="mb-2">Ingresar</h4>
-            <p class="text-secondary mb-3">Accede a tu dashboard de vigencias.</p>
-
-            <div class="d-grid gap-2 mb-3">
-                Continuar con Google
-            </a>
-                Continuar con Facebook
-            </a>
-            </div>
-
-            <div class="text-center text-secondary small mb-3">o ingresa con tu cuenta</div>
-
-            <form method="post" action="{% url 'account_login' %}" class="vstack gap-3">
-            {% csrf_token %}
-
-            {% if form.non_field_errors %}
-                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-            {% endif %}
-
-            {% for field in form %}
-                <div>
-                <label class="form-label">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                    <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
-                {% endif %}
+<div class="fade-in">
+    <div class="row justify-content-center align-items-center min-vh-75">
+        <div class="col-lg-8">
+            <div class="row g-4">
+                <!-- Panel izquierdo - Beneficios -->
+                <div class="col-lg-6 d-none d-lg-block">
+                    <div class="card border-0 bg-primary text-white h-100">
+                        <div class="card-body p-5 d-flex flex-column justify-content-center">
+                            <div class="mb-5">
+                                <h1 class="display-6 fw-bold mb-4">
+                                    <i class="bi bi-car-front-fill me-2"></i>Bienvenido de vuelta
+                                </h1>
+                                <p class="lead opacity-75">
+                                    Accede a tu panel de control para gestionar todos los vencimientos de tus vehículos.
+                                </p>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h5 class="fw-bold mb-3">
+                                    <i class="bi bi-star-fill me-2"></i>Lo que te espera:
+                                </h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-3 d-flex">
+                                        <i class="bi bi-check-circle-fill opacity-75 me-3 fs-5"></i>
+                                        <span>Dashboard con vista completa de vencimientos</span>
+                                    </li>
+                                    <li class="mb-3 d-flex">
+                                        <i class="bi bi-check-circle-fill opacity-75 me-3 fs-5"></i>
+                                        <span>Alertas automáticas por email</span>
+                                    </li>
+                                    <li class="d-flex">
+                                        <i class="bi bi-check-circle-fill opacity-75 me-3 fs-5"></i>
+                                        <span>Historial completo de tus documentos</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mt-auto pt-5">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i class="bi bi-shield-check fs-1 opacity-75"></i>
+                                    </div>
+                                    <div>
+                                        <p class="small mb-0 opacity-75">
+                                            Tu información está protegida con encriptación SSL
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            {% endfor %}
-
-            <button class="btn btn-primary w-100" type="submit">Entrar</button>
-            </form>
-
-            <div class="mt-3 small">
-            ¿No tienes cuenta? <a href="{% url 'account_signup' %}">Crear cuenta</a>
+                
+                <!-- Panel derecho - Formulario -->
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-lg">
+                        <div class="card-body p-4 p-md-5">
+                            <!-- Logo y título -->
+                            <div class="text-center mb-4">
+                                <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
+                                    <i class="bi bi-box-arrow-in-right text-primary fs-2"></i>
+                                </div>
+                                <h2 class="h3 fw-bold mb-2">Ingresar a tu cuenta</h2>
+                                <p class="text-muted">
+                                    Accede para gestionar tus vigencias de SOAT y tecnomecánica
+                                </p>
+                            </div>
+                            
+                            <!-- Botones de redes sociales -->
+                            {% get_providers as socialaccount_providers %}
+                            {% if socialaccount_providers %}
+                            <div class="mb-4">
+                                <div class="d-grid gap-2">
+                                    <a class="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center" href="{% provider_login_url 'google' %}">
+                                        <i class="bi bi-google me-3 fs-5"></i>
+                                        <span>Continuar con Google</span>
+                                    </a>
+                                    <a class="btn btn-outline-primary btn-lg d-flex align-items-center justify-content-center"href="{% provider_login_url 'facebook' %}">
+                                        <i class="bi bi-facebook me-3 fs-5"></i>
+                                        <span>Continuar con Facebook</span>
+                                    </a>
+                                </div>
+                                
+                                <div class="divider my-4">
+                                    <span class="text-muted small px-3 bg-white position-relative">
+                                        O ingresa con tu correo
+                                    </span>
+                                    <hr class="position-absolute w-100 top-50" style="z-index: -1;">
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Formulario de login -->
+                            <form method="post" action="{% url 'account_login' %}" class="needs-validation" novalidate>
+                                {% csrf_token %}
+                                
+                                {% if form.non_field_errors %}
+                                <div class="alert alert-danger">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    {{ form.non_field_errors }}
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Campo de login (email o username) -->
+                                <div class="mb-4">
+                                    <label for="id_login" class="form-label fw-semibold">
+                                        <i class="bi bi-envelope me-1"></i>Correo electrónico
+                                    </label>
+                                    <input type="text" name="login" id="id_login" class="form-control form-control-lg {% if form.login.errors %}is-invalid{% endif %}" placeholder="tu@correo.com" value="{{ form.login.value|default:'' }}" required>
+                                    {% if form.login.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.login.errors|striptags }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Campo de contraseña -->
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label for="id_password" class="form-label fw-semibold">
+                                            <i class="bi bi-lock me-1"></i>Contraseña
+                                        </label>
+                                        <a href="{% url 'account_reset_password' %}" class="small text-decoration-none">
+                                            ¿Olvidaste tu contraseña?
+                                        </a>
+                                    </div>
+                                    <input type="password" name="password" id="id_password" class="form-control form-control-lg {% if form.password.errors %}is-invalid{% endif %}" placeholder="••••••••" required>
+                                    {% if form.password.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.password.errors|striptags }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Recordar sesión -->
+                                <div class="mb-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="remember" id="id_remember">
+                                        <label class="form-check-label" for="id_remember">
+                                            Mantener sesión iniciada
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Botón de submit -->
+                                <div class="d-grid mb-4">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar a mi cuenta
+                                    </button>
+                                </div>
+                                
+                                <!-- Redireccion si existe -->
+                                {% if redirect_field_value %}
+                                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+                                {% endif %}
+                            </form>
+                            
+                            <!-- Enlace a registro -->
+                            <div class="text-center pt-3 border-top">
+                                <p class="text-muted mb-0">
+                                    ¿No tienes una cuenta?
+                                    <a href="{% url 'account_signup' %}" class="text-decoration-none fw-semibold">
+                                        Crear cuenta gratuita
+                                    </a>
+                                </p>
+                            </div>
+                            
+                            <!-- Información de seguridad -->
+                            <div class="mt-4">
+                                <div class="alert alert-light border small">
+                                    <div class="d-flex">
+                                        <div class="me-3">
+                                            <i class="bi bi-shield-check text-success"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0">
+                                                <strong>Tu seguridad es importante:</strong> 
+                                                Usamos encriptación SSL y nunca compartimos tus datos con terceros.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
         </div>
     </div>
 </div>
 
+<!-- Script para manejar la validación del formulario -->
 <script>
-    document.querySelectorAll("input, select, textarea").forEach(el => {
-        if (!el.classList.contains("form-control") && el.type !== "checkbox") {
-        el.classList.add("form-control");
-        }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Aplicar clases de Bootstrap a los campos de allauth
+        document.querySelectorAll('#id_login, #id_password').forEach(function(input) {
+            if (!input.classList.contains('form-control')) {
+                input.classList.add('form-control', 'form-control-lg');
+            }
+        });
+        
+        // Validación del formulario
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
     });
 </script>
+
+<!-- Estilos adicionales para esta página -->
+<style>
+    .min-vh-75 {
+        min-height: 75vh;
+    }
+    
+    .divider {
+        position: relative;
+        text-align: center;
+    }
+    
+    .divider span {
+        background-color: white;
+        padding: 0 15px;
+        z-index: 1;
+    }
+    
+    .divider hr {
+        border-top: 1px solid #dee2e6;
+        margin: 0;
+    }
+</style>
 {% endblock %}

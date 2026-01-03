@@ -1,92 +1,226 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
-    <div>
-        <h3 class="mb-1">Hola, {{ user.username }} 👋</h3>
-        <div class="text-secondary">
-        Plan: <span class="fw-semibold">{{ plan }}</span> · Vigencias activas: <span class="fw-semibold">{{ total_vigencias }}</span>
+<div class="fade-in">
+    <!-- Header del Dashboard -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div class="mb-3 mb-md-0">
+            <h1 class="h2 fw-bold mb-2">Hola, {{ user.username }} 👋</h1>
+            <p class="text-muted mb-0">
+                <i class="bi bi-card-checklist me-1"></i>
+                Plan: <span class="fw-semibold text-primary">{{ plan }}</span> · 
+                <i class="bi bi-clock-history ms-3 me-1"></i>
+                Vigencias activas: <span class="fw-semibold text-primary">{{ total_vigencias }}</span>
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-primary" href="{% url 'vehicle_create' %}">
+                <i class="bi bi-plus-circle me-1"></i>Vehículo
+            </a>
+            <a class="btn btn-primary" href="{% url 'vigencia_create' %}">
+                <i class="bi bi-plus-circle me-1"></i>Vigencia
+            </a>
         </div>
     </div>
 
-    <div class="d-flex gap-2">
-        <a class="btn btn-outline-primary" href="{% url 'vehicle_create' %}">+ Vehículo</a>
-        <a class="btn btn-primary" href="{% url 'vigencia_create' %}">+ Vigencia</a>
-    </div>
-    </div>
-
-    <div class="row g-3 mb-3">
-    <div class="col-md-4">
-        <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="text-secondary small">Estado</div>
-            {% if is_free %}
-            <div class="fs-5 fw-semibold">Gratis</div>
-            <div class="small text-secondary">Límite: 3 vigencias</div>
-            {% else %}
-            <div class="fs-5 fw-semibold">PRO</div>
-            <div class="small text-secondary">Ilimitado</div>
-            {% endif %}
-        </div>
-        </div>
-    </div>
-
-    <div class="col-md-8">
-        <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="text-secondary small">Acciones rápidas</div>
-            <div class="d-flex flex-wrap gap-2 mt-2">
-            <a class="btn btn-outline-secondary btn-sm" href="{% url 'vigencia_create' %}">Registrar vencimiento</a>
-            <a class="btn btn-outline-secondary btn-sm" href="{% url 'vehicle_create' %}">Registrar vehículo</a>
+    <!-- Cards de estado -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card h-100 border-start border-4 {% if is_free %}border-warning{% else %}border-success{% endif %}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Estado del Plan</h6>
+                            {% if is_free %}
+                            <h3 class="fw-bold text-warning mb-1">Gratis</h3>
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                Límite: 3 vigencias
+                            </p>
+                            {% else %}
+                            <h3 class="fw-bold text-success mb-1">PRO</h3>
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Vigencias ilimitadas
+                            </p>
+                            {% endif %}
+                        </div>
+                        {% if is_free %}
+                        <span class="badge bg-warning text-dark">
+                            <i class="bi bi-info-circle me-1"></i>Básico
+                        </span>
+                        {% else %}
+                        <span class="badge bg-success">
+                            <i class="bi bi-star-fill me-1"></i>Premium
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
+
+        <div class="col-md-8">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted small fw-bold mb-3">Acciones rápidas</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-outline-primary" href="{% url 'vigencia_create' %}">
+                            <i class="bi bi-calendar-plus me-1"></i>Registrar vencimiento
+                        </a>
+                        <a class="btn btn-outline-secondary" href="{% url 'vehicle_create' %}">
+                            <i class="bi bi-truck me-1"></i>Registrar vehículo
+                        </a>
+                        {% if is_free and total_vigencias >= 3 %}
+                        <a class="btn btn-outline-success" href="{% url 'upgrade' %}">
+                            <i class="bi bi-rocket-takeoff me-1"></i>Actualizar a PRO
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    </div>
 
-    <h5 class="mb-2">Mis vigencias activas</h5>
-
-    {% if vigencias %}
-    <div class="table-responsive">
-        <table class="table table-hover align-middle bg-white">
-        <thead class="table-light">
-            <tr>
-            <th>Vehículo</th>
-            <th>Tipo</th>
-            <th>Vence</th>
-            <th>Días</th>
-            <th class="text-end"></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for v in vigencias %}
-            {% with d=v.days_left %}
-            <tr>
-                <td class="fw-semibold">{{ v.vehicle.alias }}</td>
-                <td>{{ v.get_tipo_display }}</td>
-                <td>{{ v.fecha_vencimiento }}</td>
-                <td>
-                {% if d <= 0 %}
-                    <span class="badge text-bg-danger">Vencido / Hoy</span>
-                {% elif d <= 7 %}
-                    <span class="badge text-bg-warning">Faltan {{ d }}</span>
-                {% elif d <= 30 %}
-                    <span class="badge text-bg-primary">Faltan {{ d }}</span>
-                {% else %}
-                    <span class="badge text-bg-secondary">Faltan {{ d }}</span>
-                {% endif %}
-                </td>
-                <td class="text-end">
-                <a class="btn btn-outline-success btn-sm" href="{% url 'vigencia_mark_renewed' v.id %}">
-                    Renovée
+    <!-- Tabla de vigencias -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">
+                <i class="bi bi-clock-history me-2"></i>Mis Vigencias Activas
+            </h5>
+            <span class="badge bg-primary">{{ vigencias|length }} registros</span>
+        </div>
+        <div class="card-body">
+            {% if vigencias %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="fw-semibold">
+                                <i class="bi bi-truck me-1"></i>Vehículo
+                            </th>
+                            <th scope="col" class="fw-semibold">
+                                <i class="bi bi-card-checklist me-1"></i>Tipo
+                            </th>
+                            <th scope="col" class="fw-semibold">
+                                <i class="bi bi-calendar-event me-1"></i>Fecha Vencimiento
+                            </th>
+                            <th scope="col" class="fw-semibold">
+                                <i class="bi bi-alarm me-1"></i>Estado
+                            </th>
+                            <th scope="col" class="fw-semibold text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in vigencias %}
+                        {% with d=v.days_left %}
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">{{ v.vehicle.alias }}</div>
+                                {% if v.vehicle.plate %}
+                                <small class="text-muted">{{ v.vehicle.plate }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge {% if v.tipo == 'SOAT' %}bg-danger{% elif v.tipo == 'TECNO' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                    {{ v.get_tipo_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="fw-medium">{{ v.fecha_vencimiento|date:"d/m/Y" }}</div>
+                                <small class="text-muted">{{ v.fecha_vencimiento|timeuntil }}</small>
+                            </td>
+                            <td>
+                                {% if d <= 0 %}
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>Vencido
+                                </span>
+                                {% elif d <= 7 %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="bi bi-exclamation-circle me-1"></i>Faltan {{ d }} días
+                                </span>
+                                {% elif d <= 30 %}
+                                <span class="badge bg-primary">
+                                    <i class="bi bi-clock me-1"></i>Faltan {{ d }} días
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-check-circle me-1"></i>Faltan {{ d }} días
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group" role="group">
+                                    <a class="btn btn-outline-success btn-sm" href="{% url 'vigencia_mark_renewed' v.id %}" title="Marcar como renovado">
+                                        <i class="bi bi-check-circle"></i>
+                                        <span class="d-none d-md-inline">Renovar</span>
+                                    </a>
+                                    <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" 
+                                            data-bs-target="#detailModal{{ v.id }}">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <div class="mb-3">
+                    <i class="bi bi-calendar-x display-1 text-muted"></i>
+                </div>
+                <h4 class="text-muted mb-3">No tienes vigencias registradas</h4>
+                <p class="text-muted mb-4">Comienza agregando tu primera vigencia para recibir recordatorios</p>
+                <a href="{% url 'vigencia_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>Agregar primera vigencia
                 </a>
-                </td>
-            </tr>
-            {% endwith %}
-            {% endfor %}
-        </tbody>
-        </table>
+            </div>
+            {% endif %}
+        </div>
     </div>
-    {% else %}
-        <div class="alert alert-info">No tienes vigencias aún. Agrega la primera.</div>
-    {% endif %}
+</div>
+
+<!-- Modales para detalles -->
+{% for v in vigencias %}
+<div class="modal fade" id="detailModal{{ v.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalles de Vigencia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Vehículo:</dt>
+                    <dd class="col-sm-8">{{ v.vehicle.alias }}</dd>
+                    
+                    <dt class="col-sm-4">Tipo:</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge {% if v.tipo == 'SOAT' %}bg-danger{% elif v.tipo == 'TECNO' %}bg-primary{% else %}bg-secondary{% endif %}">
+                            {{ v.get_tipo_display }}
+                        </span>
+                    </dd>
+                    
+                    <dt class="col-sm-4">Fecha Vencimiento:</dt>
+                    <dd class="col-sm-8">{{ v.fecha_vencimiento|date:"d/m/Y" }}</dd>
+                    
+                    <dt class="col-sm-4">Días restantes:</dt>
+                    <dd class="col-sm-8">
+                        {% with d=v.days_left %}
+                        {% if d <= 0 %}Vencido{% else %}{{ d }} días{% endif %}
+                        {% endwith %}
+                    </dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <a href="{% url 'vigencia_mark_renewed' v.id %}" class="btn btn-success">
+                    <i class="bi bi-check-circle me-1"></i>Marcar como renovado
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
 {% endblock %}

@@ -1,32 +1,103 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-6">
-        <div class="card shadow-sm">
-        <div class="card-body">
-            <h4 class="mb-3">Nuevo vehículo</h4>
-
-            <form method="post" class="vstack gap-3">
-            {% csrf_token %}
-
-            <div>
-                <label class="form-label">Nombre / Alias</label>
-                <input name="alias" class="form-control" placeholder="Ej: Mi Duster, Mi moto" required>
+<div class="fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                            <i class="bi bi-truck-front text-primary fs-4"></i>
+                        </div>
+                        <div>
+                            <h2 class="h4 fw-bold mb-0">Nuevo Vehículo</h2>
+                            <p class="text-muted small mb-0">Registra la información de tu vehículo</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="alias" class="form-label fw-semibold">
+                                <i class="bi bi-car-front me-1"></i>Nombre / Alias del vehículo
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="alias" name="alias" 
+                                   placeholder="Ej: Mi Renault Duster, Mi Moto, Carro familiar" required>
+                            <div class="form-text">
+                                Un nombre reconocible para identificar fácilmente tu vehículo
+                            </div>
+                            <div class="invalid-feedback">
+                                Por favor ingresa un nombre para el vehículo
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="plate" class="form-label fw-semibold">
+                                <i class="bi bi-123 me-1"></i>Placa (Opcional)
+                            </label>
+                            <input type="text" class="form-control" id="plate" name="plate" 
+                                   placeholder="ABC123 o CCC123">
+                            <div class="form-text">
+                                La placa de tu vehículo para mejor identificación
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between pt-3">
+                            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-check-circle me-1"></i>Guardar Vehículo
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <div>
-                <label class="form-label">Placa (opcional)</label>
-                <input name="plate" class="form-control" placeholder="ABC123">
+            
+            <!-- Información adicional -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="fw-semibold mb-3">
+                        <i class="bi bi-info-circle me-1 text-info"></i>¿Por qué registrar mis vehículos?
+                    </h6>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2 d-flex">
+                            <i class="bi bi-check text-success me-2"></i>
+                            <span class="small">Organiza todos tus vencimientos en un solo lugar</span>
+                        </li>
+                        <li class="mb-2 d-flex">
+                            <i class="bi bi-check text-success me-2"></i>
+                            <span class="small">Recibe alertas personalizadas por cada vehículo</span>
+                        </li>
+                        <li class="d-flex">
+                            <i class="bi bi-check text-success me-2"></i>
+                            <span class="small">Mantén un histórico de todos tus documentos</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-
-            <div class="d-flex gap-2">
-                <button class="btn btn-primary">Guardar</button>
-                <a class="btn btn-outline-secondary" href="{% url 'dashboard' %}">Cancelar</a>
-            </div>
-            </form>
-
-        </div>
         </div>
     </div>
 </div>
+
+<!-- Validación del formulario -->
+<script>
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
 {% endblock %}
