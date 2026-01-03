@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Confirmar Eliminación
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            ¡Advertencia!
+                        </h6>
+                        <p class="mb-0">Esta acción no se puede deshacer.</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h6 class="fw-bold">¿Estás seguro de eliminar esta vigencia?</h6>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <span class="badge {% if vigencia.tipo == 'SOAT' %}bg-danger{% elif vigencia.tipo == 'TECNO' %}bg-primary{% else %}bg-secondary{% endif %} me-2">
+                                        {{ vigencia.get_tipo_display }}
+                                    </span>
+                                    {{ vigencia.vehicle.alias }}
+                                </h5>
+                                <p class="card-text text-muted mb-1">
+                                    <i class="bi bi-calendar-event me-1"></i>
+                                    Fecha de vencimiento: {{ vigencia.fecha_vencimiento|date:"d/m/Y" }}
+                                </p>
+                                <p class="card-text text-muted mb-0">
+                                    <i class="bi bi-car-front me-1"></i>
+                                    Vehículo: {{ vigencia.vehicle.alias }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-1"></i>Eliminar Vigencia
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -7,6 +7,10 @@ from django.utils import timezone
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
+from django.core.exceptions import ValidationError
+from datetime import datetime, timedelta
+from .validators import validar_placa_colombiana
+from .forms import VigenciaFilterForm
 
 from .models import Vehicle, Vigencia, PlanChoices
 
@@ -19,14 +23,63 @@ def landing(request):
 
 @login_required
 def dashboard(request):
-    vehicles = Vehicle.objects.filter(owner=request.user).prefetch_related("vigencias")
-    vigencias = Vigencia.objects.filter(vehicle__owner=request.user, activo=True).select_related("vehicle")
-
-    # límite FREE
+    # Obtener todos los vehículos del usuario
+    vehicles = Vehicle.objects.filter(owner=request.user)
+    
+    # Inicializar queryset
+    vigencias = Vigencia.objects.filter(
+        vehicle__owner=request.user, 
+        activo=True
+    ).select_related('vehicle')
+    
+    # Formulario de filtros
+    filter_form = VigenciaFilterForm(request.GET or None, user_vehicles=vehicles)
+    
+    # Aplicar filtros
+    if filter_form.is_valid():
+        tipo = filter_form.cleaned_data.get('tipo')
+        estado = filter_form.cleaned_data.get('estado')
+        vehicle_id = filter_form.cleaned_data.get('vehicle')
+        
+        hoy = timezone.localdate()
+        
+        if tipo:
+            vigencias = vigencias.filter(tipo=tipo)
+        
+        if estado:
+            if estado == 'vencido':
+                vigencias = vigencias.filter(fecha_vencimiento__lt=hoy)
+            elif estado == 'proximo':
+                vigencias = vigencias.filter(
+                    fecha_vencimiento__range=[hoy, hoy + timedelta(days=7)]
+                )
+            elif estado == 'vigente':
+                vigencias = vigencias.filter(fecha_vencimiento__gt=hoy + timedelta(days=7))
+        
+        if vehicle_id:
+            vigencias = vigencias.filter(vehicle_id=vehicle_id)
+    
+    # Ordenar por fecha de vencimiento
+    vigencias = vigencias.order_by('fecha_vencimiento')
+    
+    # Calcular días restantes
+    hoy = timezone.localdate()
+    for v in vigencias:
+        v.dias_restantes = (v.fecha_vencimiento - hoy).days
+    
+    # Estadísticas
+    total_vigencias = vigencias.count()
+    vencimientos_proximos = sum(1 for v in vigencias if 0 < v.dias_restantes <= 7)
+    vencimientos_hoy = sum(1 for v in vigencias if v.dias_restantes <= 0)
+    
+    # Plan del usuario
     profile = getattr(request.user, "profile", None)
     plan = profile.plan if profile else PlanChoices.FREE
     is_free = plan == PlanChoices.FREE
-    total_vigencias = Vigencia.objects.filter(vehicle__owner=request.user, activo=True).count()
+    
+    # Límite de vigencias para free
+    limite_free = 3
+    porcentaje_uso = min(100, int((total_vigencias / limite_free) * 100)) if is_free else 100
 
     context = {
         "vehicles": vehicles,
@@ -34,10 +87,14 @@ def dashboard(request):
         "plan": plan,
         "is_free": is_free,
         "total_vigencias": total_vigencias,
-        "today": timezone.localdate(),
+        "vencimientos_proximos": vencimientos_proximos,
+        "vencimientos_hoy": vencimientos_hoy,
+        "porcentaje_uso": porcentaje_uso,
+        "limite_free": limite_free,
+        "today": hoy,
+        "filter_form": filter_form,
     }
     return render(request, "core/dashboard.html", context)
-
 
 @login_required
 def vehicle_create(request):
@@ -45,12 +102,22 @@ def vehicle_create(request):
         alias = (request.POST.get("alias") or "").strip()
         plate = (request.POST.get("plate") or "").strip().upper()
 
-        if not alias:
-            messages.error(request, "Por favor escribe un nombre para tu vehículo (ej: Mi moto, Duster).")
+        if not alias or len(alias) < 2:
+            messages.error(request, "El nombre debe tener al menos 2 caracteres.")
             return render(request, "core/vehicle_form.html")
-
+    
+        if plate:
+            try:
+                validar_placa_colombiana(plate)
+            except ValidationError as e:
+                messages.error(request, str(e))
+                return render(request, "core/vehicle_form.html")
+        
+        if Vehicle.objects.filter(owner=request.user, alias=alias).exists():
+            messages.warning(request, f"Ya tienes un vehículo llamado '{alias}'.")
+        
         Vehicle.objects.create(owner=request.user, alias=alias, plate=plate)
-        messages.success(request, "Vehículo creado correctamente.")
+        messages.success(request, f"Vehículo '{alias}' creado correctamente.")
         return redirect("dashboard")
 
     return render(request, "core/vehicle_form.html")
@@ -72,10 +139,28 @@ def vigencia_create(request):
     if request.method == "POST":
         vehicle_id = request.POST.get("vehicle_id")
         tipo = request.POST.get("tipo")
-        fecha = request.POST.get("fecha_vencimiento")
+        fecha_str = request.POST.get("fecha_vencimiento")
 
-        if not vehicle_id or not tipo or not fecha:
+        if not vehicle_id or not tipo or not fecha_str:
             messages.error(request, "Completa todos los campos.")
+            return render(request, "core/vigencia_form.html", {"vehicles": vehicles})
+
+        # Validación de fecha
+        try:
+            fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+            hoy = timezone.localdate()
+            
+            if fecha <= hoy:
+                messages.error(request, "La fecha de vencimiento debe ser futura.")
+                return render(request, "core/vigencia_form.html", {"vehicles": vehicles})
+                
+            # Validación: no más de 2 años en el futuro
+            if fecha > hoy + timedelta(days=730):  # 2 años
+                messages.error(request, "La fecha no puede ser mayor a 2 años en el futuro.")
+                return render(request, "core/vigencia_form.html", {"vehicles": vehicles})
+                
+        except ValueError:
+            messages.error(request, "Formato de fecha inválido.")
             return render(request, "core/vigencia_form.html", {"vehicles": vehicles})
 
         vehicle = get_object_or_404(Vehicle, id=vehicle_id, owner=request.user)
@@ -94,7 +179,6 @@ def vigencia_create(request):
         return redirect("dashboard")
 
     return render(request, "core/vigencia_form.html", {"vehicles": vehicles})
-
 
 
 @login_required
@@ -161,3 +245,118 @@ def pro_request(request):
         return redirect("dashboard")
 
     return render(request, "core/pro_request.html")
+
+
+
+@login_required
+def vehicle_edit(request, pk):
+    vehicle = get_object_or_404(Vehicle, pk=pk, owner=request.user)
+    
+    if request.method == "POST":
+        alias = (request.POST.get("alias") or "").strip()
+        plate = (request.POST.get("plate") or "").strip().upper()
+        
+        if not alias or len(alias) < 2:
+            messages.error(request, "El nombre debe tener al menos 2 caracteres.")
+            return render(request, "core/vehicle_form.html", {"vehicle": vehicle})
+        
+        # Validar placa si se proporciona
+        if plate:
+            try:
+                validar_placa_colombiana(plate)
+            except ValidationError as e:
+                messages.error(request, str(e))
+                return render(request, "core/vehicle_form.html", {"vehicle": vehicle})
+        
+        vehicle.alias = alias
+        vehicle.plate = plate
+        vehicle.save()
+        
+        messages.success(request, f"Vehículo '{alias}' actualizado correctamente.")
+        return redirect("dashboard")
+    
+    return render(request, "core/vehicle_form.html", {"vehicle": vehicle})
+
+@login_required
+def vehicle_delete(request, pk):
+    vehicle = get_object_or_404(Vehicle, pk=pk, owner=request.user)
+    
+    if request.method == "POST":
+        alias = vehicle.alias
+        vehicle.delete()
+        messages.success(request, f"Vehículo '{alias}' eliminado correctamente.")
+        return redirect("dashboard")
+    
+    # Contar vigencias activas
+    active_vigencias = Vigencia.objects.filter(vehicle=vehicle, activo=True).count()
+    
+    context = {
+        "vehicle": vehicle,
+        "active_vigencias": active_vigencias,
+    }
+    return render(request, "core/vehicle_confirm_delete.html", context)
+
+@login_required
+def vigencia_edit(request, pk):
+    vigencia = get_object_or_404(Vigencia, pk=pk, vehicle__owner=request.user)
+    vehicles = Vehicle.objects.filter(owner=request.user)
+    
+    if request.method == "POST":
+        tipo = request.POST.get("tipo")
+        fecha_str = request.POST.get("fecha_vencimiento")
+        
+        if not tipo or not fecha_str:
+            messages.error(request, "Completa todos los campos.")
+            return render(request, "core/vigencia_form.html", {
+                "vigencia": vigencia,
+                "vehicles": vehicles
+            })
+        
+        # Validación de fecha
+        try:
+            fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+            hoy = timezone.localdate()
+            
+            if fecha <= hoy:
+                messages.error(request, "La fecha de vencimiento debe ser futura.")
+                return render(request, "core/vigencia_form.html", {
+                    "vigencia": vigencia,
+                    "vehicles": vehicles
+                })
+                
+            if fecha > hoy + timedelta(days=730):
+                messages.error(request, "La fecha no puede ser mayor a 2 años en el futuro.")
+                return render(request, "core/vigencia_form.html", {
+                    "vigencia": vigencia,
+                    "vehicles": vehicles
+                })
+                
+        except ValueError:
+            messages.error(request, "Formato de fecha inválido.")
+            return render(request, "core/vigencia_form.html", {
+                "vigencia": vigencia,
+                "vehicles": vehicles
+            })
+        
+        vigencia.tipo = tipo
+        vigencia.fecha_vencimiento = fecha
+        vigencia.save()
+        
+        messages.success(request, "Vigencia actualizada correctamente.")
+        return redirect("dashboard")
+    
+    return render(request, "core/vigencia_form.html", {
+        "vigencia": vigencia,
+        "vehicles": vehicles
+    })
+
+@login_required
+def vigencia_delete(request, pk):
+    vigencia = get_object_or_404(Vigencia, pk=pk, vehicle__owner=request.user)
+    
+    if request.method == "POST":
+        vigencia.delete()
+        messages.success(request, "Vigencia eliminada correctamente.")
+        return redirect("dashboard")
+    
+    return render(request, "core/vigencia_confirm_delete.html", {"vigencia": vigencia})

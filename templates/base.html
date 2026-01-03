@@ -49,6 +49,12 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
+                                    <a class="dropdown-item" href="{% url 'profile_settings' %}">
+                                        <i class="bi bi-gear me-2"></i>Configuración
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
                                     <form method="post" action="{% url 'account_logout' %}">
                                         {% csrf_token %}
                                         <button type="submit" class="dropdown-item">

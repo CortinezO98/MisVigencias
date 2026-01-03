@@ -204,3 +204,14 @@ body {
 .fade-in {
     animation: fadeIn 0.3s ease-in-out;
 }
+
+/* En tu app.css */
+@media (max-width: 768px) {
+    .dropdown-menu {
+        position: absolute !important;
+        transform: translate3d(-100px, 38px, 0px) !important;
+        top: 0px !important;
+        left: 0px !important;
+        will-change: transform !important;
+    }
+}

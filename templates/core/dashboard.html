@@ -10,6 +10,10 @@
                 Plan: <span class="fw-semibold text-primary">{{ plan }}</span> · 
                 <i class="bi bi-clock-history ms-3 me-1"></i>
                 Vigencias activas: <span class="fw-semibold text-primary">{{ total_vigencias }}</span>
+                {% if vencimientos_proximos %}
+                · <i class="bi bi-exclamation-triangle ms-3 me-1 text-warning"></i>
+                <span class="text-warning">Próximos: {{ vencimientos_proximos }}</span>
+                {% endif %}
             </p>
         </div>
         <div class="d-flex gap-2">
@@ -32,9 +36,16 @@
                             <h6 class="text-uppercase text-muted small fw-bold mb-2">Estado del Plan</h6>
                             {% if is_free %}
                             <h3 class="fw-bold text-warning mb-1">Gratis</h3>
-                            <p class="text-muted mb-0">
+                            <div class="progress mb-2" style="height: 8px;">
+                                <div class="progress-bar bg-warning" role="progressbar" 
+                                     style="width: {{ porcentaje_uso }}%;" 
+                                     aria-valuenow="{{ porcentaje_uso }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100"></div>
+                            </div>
+                            <p class="text-muted mb-0 small">
                                 <i class="bi bi-exclamation-triangle me-1"></i>
-                                Límite: 3 vigencias
+                                {{ total_vigencias }}/{{ limite_free }} vigencias usadas
                             </p>
                             {% else %}
                             <h3 class="fw-bold text-success mb-1">PRO</h3>
@@ -58,19 +69,41 @@
             </div>
         </div>
 
-        <div class="col-md-8">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted small fw-bold mb-2">Estadísticas</h6>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="h4 fw-bold mb-1 {% if vencimientos_hoy > 0 %}text-danger{% endif %}">
+                                {{ vencimientos_hoy }}
+                            </div>
+                            <div class="small text-muted">Vencidos</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="h4 fw-bold mb-1 {% if vencimientos_proximos > 0 %}text-warning{% endif %}">
+                                {{ vencimientos_proximos }}
+                            </div>
+                            <div class="small text-muted">Próximos</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
             <div class="card h-100">
                 <div class="card-body">
                     <h6 class="text-uppercase text-muted small fw-bold mb-3">Acciones rápidas</h6>
                     <div class="d-flex flex-wrap gap-2">
-                        <a class="btn btn-outline-primary" href="{% url 'vigencia_create' %}">
-                            <i class="bi bi-calendar-plus me-1"></i>Registrar vencimiento
+                        <a class="btn btn-outline-primary btn-sm" href="{% url 'vigencia_create' %}">
+                            <i class="bi bi-calendar-plus me-1"></i>Nuevo vencimiento
                         </a>
-                        <a class="btn btn-outline-secondary" href="{% url 'vehicle_create' %}">
-                            <i class="bi bi-truck me-1"></i>Registrar vehículo
+                        <a class="btn btn-outline-secondary btn-sm" href="{% url 'vehicle_create' %}">
+                            <i class="bi bi-truck me-1"></i>Nuevo vehículo
                         </a>
                         {% if is_free and total_vigencias >= 3 %}
-                        <a class="btn btn-outline-success" href="{% url 'upgrade' %}">
+                        <a class="btn btn-outline-success btn-sm" href="{% url 'upgrade' %}">
                             <i class="bi bi-rocket-takeoff me-1"></i>Actualizar a PRO
                         </a>
                         {% endif %}
@@ -80,13 +113,54 @@
         </div>
     </div>
 
+    <!-- Filtros (opcional, puedes agregarlo después) -->
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">Tipo</label>
+                    <select class="form-select form-select-sm">
+                        <option>Todos</option>
+                        <option>SOAT</option>
+                        <option>Tecnomecánica</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">Estado</label>
+                    <select class="form-select form-select-sm">
+                        <option>Todos</option>
+                        <option>Vencidos</option>
+                        <option>Próximos</option>
+                        <option>Vigentes</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">Vehículo</label>
+                    <select class="form-select form-select-sm">
+                        <option>Todos</option>
+                        {% for vehicle in vehicles %}
+                        <option>{{ vehicle.alias }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                        <i class="bi bi-funnel me-1"></i>Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+   
+
     <!-- Tabla de vigencias -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0 fw-bold">
                 <i class="bi bi-clock-history me-2"></i>Mis Vigencias Activas
             </h5>
-            <span class="badge bg-primary">{{ vigencias|length }} registros</span>
+            <span class="badge bg-primary">{{ vigencias|length }} de {{ total_vigencias }} registros</span>
         </div>
         <div class="card-body">
             {% if vigencias %}
@@ -111,7 +185,7 @@
                     </thead>
                     <tbody>
                         {% for v in vigencias %}
-                        {% with d=v.days_left %}
+                        {% with d=v.dias_restantes %}
                         <tr>
                             <td>
                                 <div class="fw-semibold">{{ v.vehicle.alias }}</div>
@@ -152,6 +226,9 @@
                                     <a class="btn btn-outline-success btn-sm" href="{% url 'vigencia_mark_renewed' v.id %}" title="Marcar como renovado">
                                         <i class="bi bi-check-circle"></i>
                                         <span class="d-none d-md-inline">Renovar</span>
+                                    </a>
+                                    <a class="btn btn-outline-warning btn-sm" href="{% url 'vigencia_edit' v.id %}" title="Editar vigencia">
+                                        <i class="bi bi-pencil"></i>
                                     </a>
                                     <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" 
                                             data-bs-target="#detailModal{{ v.id }}">
@@ -207,7 +284,7 @@
                     
                     <dt class="col-sm-4">Días restantes:</dt>
                     <dd class="col-sm-8">
-                        {% with d=v.days_left %}
+                        {% with d=v.dias_restantes %}
                         {% if d <= 0 %}Vencido{% else %}{{ d }} días{% endif %}
                         {% endwith %}
                     </dd>
@@ -215,6 +292,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <a href="{% url 'vigencia_edit' v.id %}" class="btn btn-warning">
+                    <i class="bi bi-pencil me-1"></i>Editar
+                </a>
                 <a href="{% url 'vigencia_mark_renewed' v.id %}" class="btn btn-success">
                     <i class="bi bi-check-circle me-1"></i>Marcar como renovado
                 </a>
