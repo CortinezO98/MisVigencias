@@ -304,7 +304,7 @@ AUDITLOG_INCLUDE_ALL_MODELS = False
 
 
 # Sentry Configuration
-if not settings.DEBUG:
+if not DEBUG:
     sentry_sdk.init(
         dsn=os.getenv('SENTRY_DSN'),
         integrations=[

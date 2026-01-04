@@ -66,3 +66,16 @@ def payu_webhook(request):
         return JsonResponse({'status': 'ok'})
     
     return JsonResponse({'error': 'Invalid method'}, status=400)
+
+
+@login_required
+def upgrade_subscription(request):
+    """Vista para mostrar formulario de actualización a PRO"""
+    subscription = request.user.subscription
+    
+    # Si ya es PRO, redirigir al dashboard
+    if subscription.plan != "FREE":
+        return redirect('dashboard')
+    
+    # Mostrar formulario de pago
+    return render(request, 'billing/payment_form.html')
