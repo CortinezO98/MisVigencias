@@ -37,11 +37,7 @@
                             {% if is_free %}
                             <h3 class="fw-bold text-warning mb-1">Gratis</h3>
                             <div class="progress mb-2" style="height: 8px;">
-                                <div class="progress-bar bg-warning" role="progressbar" 
-                                     style="width: {{ porcentaje_uso }}%;" 
-                                     aria-valuenow="{{ porcentaje_uso }}" 
-                                     aria-valuemin="0" 
-                                     aria-valuemax="100"></div>
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ porcentaje_uso }}%;" aria-valuenow="{{ porcentaje_uso }}" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                             <p class="text-muted mb-0 small">
                                 <i class="bi bi-exclamation-triangle me-1"></i>
@@ -113,8 +109,56 @@
         </div>
     </div>
 
+    <!-- ✅ Consultas oficiales (desde Admin / BD) -->
+    {% if official_services %}
+    <div class="mt-4 mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <h5 class="mb-0">
+            <i class="bi bi-link-45deg me-1"></i>Consultas oficiales
+            </h5>
+            <span class="text-muted small">Se abren en una nueva pestaña</span>
+        </div>
+
+        <div class="row g-3">
+            {% for s in official_services %}
+            <div class="col-12 col-md-6 col-xl-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                <div class="d-flex align-items-start">
+                    <div class="me-3 fs-3 text-primary">
+                    <i class="bi {{ s.icon }}"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                    <h6 class="fw-bold mb-1">{{ s.title }}</h6>
+                    {% if s.description %}
+                        <p class="text-muted small mb-2">{{ s.description }}</p>
+                    {% endif %}
+                    {% if s.note %}
+                        <p class="small mb-2"><i class="bi bi-info-circle me-1"></i>{{ s.note }}</p>
+                    {% endif %}
+
+                    <a class="btn btn-outline-primary btn-sm"
+                        href="{{ s.url }}"
+                        target="_blank"
+                        rel="noopener noreferrer">
+                        Ir al sitio oficial <i class="bi bi-box-arrow-up-right ms-1"></i>
+                    </a>
+                    </div>
+                </div>
+                </div>
+            </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="alert alert-light border mt-3 small mb-0">
+            <i class="bi bi-shield-check me-1 text-success"></i>
+            Mis Vigencias no captura datos de estos portales. Las consultas se realizan directamente en los sitios oficiales.
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Filtros (opcional, puedes agregarlo después) -->
-    
     <div class="card mb-4">
         <div class="card-body">
             <form method="get" class="row g-3">
@@ -152,7 +196,6 @@
             </form>
         </div>
     </div>
-   
 
     <!-- Tabla de vigencias -->
     <div class="card">
@@ -230,7 +273,7 @@
                                     <a class="btn btn-outline-warning btn-sm" href="{% url 'vigencia_edit' v.id %}" title="Editar vigencia">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" 
+                                    <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal"
                                             data-bs-target="#detailModal{{ v.id }}">
                                         <i class="bi bi-eye"></i>
                                     </button>
@@ -271,17 +314,17 @@
                 <dl class="row">
                     <dt class="col-sm-4">Vehículo:</dt>
                     <dd class="col-sm-8">{{ v.vehicle.alias }}</dd>
-                    
+
                     <dt class="col-sm-4">Tipo:</dt>
                     <dd class="col-sm-8">
                         <span class="badge {% if v.tipo == 'SOAT' %}bg-danger{% elif v.tipo == 'TECNO' %}bg-primary{% else %}bg-secondary{% endif %}">
                             {{ v.get_tipo_display }}
                         </span>
                     </dd>
-                    
+
                     <dt class="col-sm-4">Fecha Vencimiento:</dt>
                     <dd class="col-sm-8">{{ v.fecha_vencimiento|date:"d/m/Y" }}</dd>
-                    
+
                     <dt class="col-sm-4">Días restantes:</dt>
                     <dd class="col-sm-8">
                         {% with d=v.dias_restantes %}

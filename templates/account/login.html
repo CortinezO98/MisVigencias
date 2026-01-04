@@ -21,7 +21,7 @@
                                     Accede a tu panel de control para gestionar todos los vencimientos de tus vehículos.
                                 </p>
                             </div>
-                            
+
                             <div class="mt-4">
                                 <h5 class="fw-bold mb-3">
                                     <i class="bi bi-star-fill me-2"></i>Lo que te espera:
@@ -41,7 +41,7 @@
                                     </li>
                                 </ul>
                             </div>
-                            
+
                             <div class="mt-auto pt-5">
                                 <div class="d-flex align-items-center">
                                     <div class="me-3">
@@ -57,7 +57,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Panel derecho - Formulario -->
                 <div class="col-lg-6">
                     <div class="card border-0 shadow-lg">
@@ -72,22 +72,35 @@
                                     Accede para gestionar tus vigencias de SOAT y tecnomecánica
                                 </p>
                             </div>
-                            
+
                             <!-- Botones de redes sociales -->
                             {% get_providers as socialaccount_providers %}
                             {% if socialaccount_providers %}
                             <div class="mb-4">
                                 <div class="d-grid gap-2">
-                                    <a class="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center" href="{% provider_login_url 'google' %}">
-                                        <i class="bi bi-google me-3 fs-5"></i>
-                                        <span>Continuar con Google</span>
-                                    </a>
-                                    <a class="btn btn-outline-primary btn-lg d-flex align-items-center justify-content-center"href="{% provider_login_url 'facebook' %}">
-                                        <i class="bi bi-facebook me-3 fs-5"></i>
-                                        <span>Continuar con Facebook</span>
-                                    </a>
+
+                                    <!-- Google (POST) -->
+                                    <form method="post" action="{% provider_login_url 'google' %}">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center w-100">
+                                            <i class="bi bi-google me-3 fs-5"></i>
+                                            <span>Continuar con Google</span>
+                                        </button>
+                                    </form>
+
+                                    <!-- Facebook (POST) -->
+                                    <form method="post" action="{% provider_login_url 'facebook' %}">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="btn btn-outline-primary btn-lg d-flex align-items-center justify-content-center w-100">
+                                            <i class="bi bi-facebook me-3 fs-5"></i>
+                                            <span>Continuar con Facebook</span>
+                                        </button>
+                                    </form>
+
                                 </div>
-                                
+
                                 <div class="divider my-4">
                                     <span class="text-muted small px-3 bg-white position-relative">
                                         O ingresa con tu correo
@@ -96,18 +109,18 @@
                                 </div>
                             </div>
                             {% endif %}
-                            
+
                             <!-- Formulario de login -->
                             <form method="post" action="{% url 'account_login' %}" class="needs-validation" novalidate>
                                 {% csrf_token %}
-                                
+
                                 {% if form.non_field_errors %}
                                 <div class="alert alert-danger">
                                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
                                     {{ form.non_field_errors }}
                                 </div>
                                 {% endif %}
-                                
+
                                 <!-- Campo de login (email o username) -->
                                 <div class="mb-4">
                                     <label for="id_login" class="form-label fw-semibold">
@@ -120,7 +133,7 @@
                                     </div>
                                     {% endif %}
                                 </div>
-                                
+
                                 <!-- Campo de contraseña -->
                                 <div class="mb-4">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -138,7 +151,7 @@
                                     </div>
                                     {% endif %}
                                 </div>
-                                
+
                                 <!-- Recordar sesión -->
                                 <div class="mb-4">
                                     <div class="form-check">
@@ -148,20 +161,20 @@
                                         </label>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Botón de submit -->
                                 <div class="d-grid mb-4">
                                     <button type="submit" class="btn btn-primary btn-lg">
                                         <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar a mi cuenta
                                     </button>
                                 </div>
-                                
+
                                 <!-- Redireccion si existe -->
                                 {% if redirect_field_value %}
                                 <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
                                 {% endif %}
                             </form>
-                            
+
                             <!-- Enlace a registro -->
                             <div class="text-center pt-3 border-top">
                                 <p class="text-muted mb-0">
@@ -171,7 +184,7 @@
                                     </a>
                                 </p>
                             </div>
-                            
+
                             <!-- Información de seguridad -->
                             <div class="mt-4">
                                 <div class="alert alert-light border small">
@@ -181,7 +194,7 @@
                                         </div>
                                         <div>
                                             <p class="mb-0">
-                                                <strong>Tu seguridad es importante:</strong> 
+                                                <strong>Tu seguridad es importante:</strong>
                                                 Usamos encriptación SSL y nunca compartimos tus datos con terceros.
                                             </p>
                                         </div>
@@ -205,7 +218,7 @@
                 input.classList.add('form-control', 'form-control-lg');
             }
         });
-        
+
         // Validación del formulario
         (function () {
             'use strict'
@@ -229,18 +242,18 @@
     .min-vh-75 {
         min-height: 75vh;
     }
-    
+
     .divider {
         position: relative;
         text-align: center;
     }
-    
+
     .divider span {
         background-color: white;
         padding: 0 15px;
         z-index: 1;
     }
-    
+
     .divider hr {
         border-top: 1px solid #dee2e6;
         margin: 0;

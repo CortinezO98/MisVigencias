@@ -21,7 +21,7 @@
                                     Únete a miles de colombianos que ya mantienen sus documentos vehiculares al día.
                                 </p>
                             </div>
-                            
+
                             <div class="mt-4">
                                 <h5 class="fw-bold mb-3">
                                     <i class="bi bi-gift-fill me-2"></i>Tu plan Gratis incluye:
@@ -45,7 +45,7 @@
                                     </li>
                                 </ul>
                             </div>
-                            
+
                             <div class="mt-auto pt-5">
                                 <div class="alert bg-white bg-opacity-10 border-0">
                                     <div class="d-flex">
@@ -63,7 +63,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Panel derecho - Formulario -->
                 <div class="col-lg-6">
                     <div class="card border-0 shadow-lg">
@@ -78,22 +78,35 @@
                                     Regístrate en 1 minuto y empieza a organizar tus documentos
                                 </p>
                             </div>
-                            
+
                             <!-- Botones de redes sociales -->
                             {% get_providers as socialaccount_providers %}
                             {% if socialaccount_providers %}
                             <div class="mb-4">
                                 <div class="d-grid gap-2">
-                                    <a class="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center" href="{% provider_login_url 'google' %}">
-                                        <i class="bi bi-google me-3 fs-5"></i>
-                                        <span>Continuar con Google</span>
-                                    </a>
-                                    <a class="btn btn-outline-primary btn-lg d-flex align-items-center justify-content-center"href="{% provider_login_url 'facebook' %}">
-                                        <i class="bi bi-facebook me-3 fs-5"></i>
-                                        <span>Continuar con Facebook</span>
-                                    </a>
+
+                                    <!-- Google (POST) -->
+                                    <form method="post" action="{% provider_login_url 'google' %}">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center w-100">
+                                            <i class="bi bi-google me-3 fs-5"></i>
+                                            <span>Continuar con Google</span>
+                                        </button>
+                                    </form>
+
+                                    <!-- Facebook (POST) -->
+                                    <form method="post" action="{% provider_login_url 'facebook' %}">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="btn btn-outline-primary btn-lg d-flex align-items-center justify-content-center w-100">
+                                            <i class="bi bi-facebook me-3 fs-5"></i>
+                                            <span>Continuar con Facebook</span>
+                                        </button>
+                                    </form>
+
                                 </div>
-                                
+
                                 <div class="divider my-4">
                                     <span class="text-muted small px-3 bg-white position-relative">
                                         O regístrate con tu correo
@@ -102,18 +115,18 @@
                                 </div>
                             </div>
                             {% endif %}
-                            
+
                             <!-- Formulario de registro -->
                             <form method="post" action="{% url 'account_signup' %}" class="needs-validation" novalidate>
                                 {% csrf_token %}
-                                
+
                                 {% if form.non_field_errors %}
                                 <div class="alert alert-danger">
                                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
                                     {{ form.non_field_errors }}
                                 </div>
                                 {% endif %}
-                                
+
                                 <!-- Campo de email -->
                                 <div class="mb-4">
                                     <label for="id_email" class="form-label fw-semibold">
@@ -129,7 +142,7 @@
                                         Usaremos este correo para enviarte los recordatorios
                                     </div>
                                 </div>
-                                
+
                                 <!-- Campo de nombre de usuario (si aplica) -->
                                 {% if form.username %}
                                 <div class="mb-4">
@@ -149,7 +162,7 @@
                                     {% endif %}
                                 </div>
                                 {% endif %}
-                                
+
                                 <!-- Campo de contraseña 1 -->
                                 <div class="mb-4">
                                     <label for="id_password1" class="form-label fw-semibold">
@@ -167,7 +180,7 @@
                                     </div>
                                     {% endif %}
                                 </div>
-                                
+
                                 <!-- Campo de contraseña 2 -->
                                 <div class="mb-4">
                                     <label for="id_password2" class="form-label fw-semibold">
@@ -183,13 +196,13 @@
                                         Repite tu contraseña para confirmar
                                     </div>
                                 </div>
-                                
+
                                 <!-- Términos y condiciones -->
                                 <div class="mb-4">
                                     <div class="form-check">
                                         <input class="form-check-input {% if form.terms.errors %}is-invalid{% endif %}" type="checkbox" name="terms" id="id_terms" {% if form.terms.value %}checked{% endif %} required>
                                         <label class="form-check-label small" for="id_terms">
-                                            Acepto los <a href="#" class="text-decoration-none">Términos de servicio</a> 
+                                            Acepto los <a href="#" class="text-decoration-none">Términos de servicio</a>
                                             y la <a href="#" class="text-decoration-none">Política de privacidad</a> de Mis Vigencias
                                         </label>
                                         {% if form.terms.errors %}
@@ -199,20 +212,20 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                
+
                                 <!-- Botón de submit -->
                                 <div class="d-grid mb-4">
                                     <button type="submit" class="btn btn-success btn-lg">
                                         <i class="bi bi-person-plus me-2"></i>Crear mi cuenta gratuita
                                     </button>
                                 </div>
-                                
+
                                 <!-- Redireccion si existe -->
                                 {% if redirect_field_value %}
                                 <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
                                 {% endif %}
                             </form>
-                            
+
                             <!-- Enlace a login -->
                             <div class="text-center pt-3 border-top">
                                 <p class="text-muted mb-0">
@@ -222,7 +235,7 @@
                                     </a>
                                 </p>
                             </div>
-                            
+
                             <!-- Información adicional -->
                             <div class="mt-4">
                                 <div class="card bg-light border-0">
@@ -269,7 +282,7 @@
                 input.classList.add('form-control', 'form-control-lg');
             }
         });
-        
+
         // Validación del formulario
         (function () {
             'use strict'
@@ -285,7 +298,7 @@
                     }, false)
                 })
         })()
-        
+
         // Mostrar/ocultar contraseña (opcional)
         const passwordInputs = document.querySelectorAll('input[type="password"]');
         passwordInputs.forEach(function(input, index) {
@@ -295,12 +308,12 @@
             toggleButton.className = 'btn btn-outline-secondary btn-sm position-absolute end-0 top-50 me-3';
             toggleButton.innerHTML = '<i class="bi bi-eye"></i>';
             toggleButton.style.transform = 'translateY(-50%)';
-            
+
             // Solo para el primer campo de contraseña
             if (index === 0) {
                 parent.style.position = 'relative';
                 parent.appendChild(toggleButton);
-                
+
                 toggleButton.addEventListener('click', function() {
                     const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
                     input.setAttribute('type', type);
@@ -316,23 +329,23 @@
     .min-vh-75 {
         min-height: 75vh;
     }
-    
+
     .divider {
         position: relative;
         text-align: center;
     }
-    
+
     .divider span {
         background-color: white;
         padding: 0 15px;
         z-index: 1;
     }
-    
+
     .divider hr {
         border-top: 1px solid #dee2e6;
         margin: 0;
     }
-    
+
     .form-control-lg {
         padding: 0.75rem 1rem;
     }

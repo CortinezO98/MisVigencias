@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import timezone
 from django.core.validators import MinLengthValidator
 from .validators import validar_placa_colombiana
+from django.core.validators import RegexValidator
 
 
 
@@ -83,3 +84,52 @@ class Vigencia(models.Model):
 
     def days_left(self) -> int:
         return (self.fecha_vencimiento - timezone.localdate()).days
+
+
+
+class OfficialService(models.Model):
+    """
+    Enlaces a servicios oficiales (SIMIT, RUNT, etc.) administrables desde Django Admin.
+    Se muestran en el dashboard como "Consultas oficiales".
+    """
+
+    key = models.SlugField(
+        max_length=50,
+        unique=True,
+        help_text="Identificador único (ej: simit, runt_placa)."
+    )
+    title = models.CharField(max_length=120)
+    description = models.CharField(max_length=255, blank=True)
+    url = models.URLField(max_length=500)
+
+    # Bootstrap Icons class (ej: bi-receipt-cutoff)
+    icon = models.CharField(
+        max_length=80,
+        default="bi-link-45deg",
+        validators=[
+            RegexValidator(
+                regex=r"^bi-[a-z0-9-]+$",
+                message="El icono debe ser una clase Bootstrap Icons tipo: bi-receipt-cutoff",
+            )
+        ],
+        help_text="Clase de Bootstrap Icons. Ej: bi-receipt-cutoff"
+    )
+
+    note = models.CharField(max_length=255, blank=True)
+
+    is_active = models.BooleanField(default=True)
+    sort_order = models.PositiveIntegerField(default=100)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["sort_order", "title"]
+        indexes = [
+            models.Index(fields=["is_active", "sort_order"]),
+        ]
+        verbose_name = "Servicio oficial"
+        verbose_name_plural = "Servicios oficiales"
+
+    def __str__(self) -> str:
+        return f"{self.title} ({'Activo' if self.is_active else 'Inactivo'})"

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, Vehicle, Vigencia
+from .models import *
 
 
 @admin.register(Profile)
@@ -22,3 +22,14 @@ class VigenciaAdmin(admin.ModelAdmin):
     list_filter = ("tipo", "activo")
     search_fields = ("vehicle__alias", "vehicle__plate", "vehicle__owner__username")
     date_hierarchy = "fecha_vencimiento"
+    
+    
+
+
+@admin.register(OfficialService)
+class OfficialServiceAdmin(admin.ModelAdmin):
+    list_display = ("title", "key", "is_active", "sort_order", "updated_at")
+    list_filter = ("is_active",)
+    search_fields = ("title", "key", "description", "url")
+    ordering = ("sort_order", "title")
+    prepopulated_fields = {"key": ("title",)}

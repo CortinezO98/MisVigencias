@@ -16,6 +16,8 @@ urlpatterns = [
     path("vigencias/<int:pk>/eliminar/", views.vigencia_delete, name="vigencia_delete"),
     path("vigencias/<int:pk>/renove/", views.vigencia_mark_renewed, name="vigencia_mark_renewed"),
     
+    path("perfil/", views.profile_settings, name="profile_settings"),
+    
     # PRO
     path("pro/solicitar/", views.pro_request, name="pro_request"),
     path("accounts/", include("allauth.urls")),

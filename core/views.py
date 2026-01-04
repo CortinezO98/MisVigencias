@@ -11,6 +11,8 @@ from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
 from .validators import validar_placa_colombiana
 from .forms import VigenciaFilterForm
+from .forms import ProfileForm
+from core.models import OfficialService
 
 from .models import Vehicle, Vigencia, PlanChoices
 
@@ -34,7 +36,8 @@ def dashboard(request):
     
     # Formulario de filtros
     filter_form = VigenciaFilterForm(request.GET or None, user_vehicles=vehicles)
-    
+    # Obtener servicios oficiales activos
+    official_services = OfficialService.objects.filter(is_active=True).order_by("sort_order", "title")
     # Aplicar filtros
     if filter_form.is_valid():
         tipo = filter_form.cleaned_data.get('tipo')
@@ -93,6 +96,7 @@ def dashboard(request):
         "limite_free": limite_free,
         "today": hoy,
         "filter_form": filter_form,
+        "official_services": official_services
     }
     return render(request, "core/dashboard.html", context)
 
@@ -360,3 +364,46 @@ def vigencia_delete(request, pk):
         return redirect("dashboard")
     
     return render(request, "core/vigencia_confirm_delete.html", {"vigencia": vigencia})
+
+
+@login_required
+def profile_settings(request):
+    profile = getattr(request.user, 'profile', None)
+    
+    if request.method == 'POST':
+        form = ProfileForm(request.POST)
+        if form.is_valid():
+            # Actualizar profile
+            if profile:
+                profile.phone = form.cleaned_data.get('phone', '')
+                profile.whatsapp_enabled = form.cleaned_data.get('whatsapp_enabled', False)
+                profile.email_notifications = form.cleaned_data.get('email_notifications', True)
+                
+                # Convertir días seleccionados a lista de enteros
+                notification_days = form.cleaned_data.get('notification_days', [])
+                profile.notification_days = [int(day) for day in notification_days]
+                
+                profile.save()
+                messages.success(request, 'Configuración actualizada correctamente.')
+            else:
+                messages.error(request, 'No se encontró el perfil.')
+            
+            return redirect('profile_settings')
+    else:
+        # Cargar datos actuales
+        initial_data = {}
+        if profile:
+            initial_data = {
+                'phone': profile.phone,
+                'whatsapp_enabled': profile.whatsapp_enabled,
+                'email_notifications': profile.email_notifications,
+                'notification_days': [str(day) for day in profile.notification_days],
+            }
+        
+        form = ProfileForm(initial=initial_data)
+    
+    context = {
+        'form': form,
+        'profile': profile,
+    }
+    return render(request, 'core/profile_settings.html', context)

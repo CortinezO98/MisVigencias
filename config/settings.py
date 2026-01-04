@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     # apps del proyecto
     "core.apps.CoreConfig",
     "reminders",
-    "billing",
+    "billing.apps.BillingConfig",
 ]
 
 MIDDLEWARE = [
@@ -81,24 +81,26 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = True
-ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+# django-allauth 
+ACCOUNT_LOGIN_METHODS = {"username", "email"}
+ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
+
 ACCOUNT_EMAIL_VERIFICATION = os.getenv("ACCOUNT_EMAIL_VERIFICATION", "optional")
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https" if not DEBUG else "http"
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
-ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
-
-ACCOUNT_LOGIN_METHODS = {"username", "email"}
 
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/dashboard/"
 LOGOUT_REDIRECT_URL = "/"
 
+SOCIALACCOUNT_LOGIN_ON_GET = False
+
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "SCOPE": ["profile", "email"],
         "AUTH_PARAMS": {"access_type": "online"},
+        "EMAIL_AUTHENTICATION": True,
+        "EMAIL_AUTHENTICATION_AUTO_CONNECT": True,
     },
     "facebook": {
         "METHOD": "oauth2",
@@ -247,3 +249,12 @@ if not DEBUG:
     
     # Referrer policy
     SECURE_REFERRER_POLICY = 'same-origin'
+    
+    
+
+
+# WhatsApp configuration (simulada por ahora)
+WHATSAPP_ENABLED = env_bool("WHATSAPP_ENABLED", False)
+WHATSAPP_API_KEY = os.getenv("WHATSAPP_API_KEY", "")
+WHATSAPP_PHONE_NUMBER = os.getenv("WHATSAPP_PHONE_NUMBER", "")
+WHATSAPP_BUSINESS_ID = os.getenv("WHATSAPP_BUSINESS_ID", "")
