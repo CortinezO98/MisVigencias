@@ -23,4 +23,8 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     # core
     path("", include("core.urls")),
+    # API
+    path("api/v1/", include("core.api.urls")),
+    # billing
+    path("billing/", include("billing.urls")),
 ]

@@ -13,6 +13,7 @@ from .validators import validar_placa_colombiana
 from .forms import VigenciaFilterForm
 from .forms import ProfileForm
 from core.models import OfficialService
+from .models import Documento
 
 from .models import Vehicle, Vigencia, PlanChoices
 
@@ -407,3 +408,78 @@ def profile_settings(request):
         'profile': profile,
     }
     return render(request, 'core/profile_settings.html', context)
+
+
+
+@login_required
+def document_upload(request):
+    """Subir documento"""
+    vigencias = Vigencia.objects.filter(
+        vehicle__owner=request.user,
+        activo=True
+    ).select_related('vehicle')
+    
+    if request.method == 'POST':
+        vigencia_id = request.POST.get('vigencia_id')
+        nombre = request.POST.get('nombre')
+        archivo = request.FILES.get('archivo')
+        tipo = request.POST.get('tipo')
+        
+        if not all([vigencia_id, nombre, archivo, tipo]):
+            messages.error(request, "Completa todos los campos obligatorios")
+            return render(request, 'core/document_form.html', {'vigencias': vigencias})
+        
+        vigencia = get_object_or_404(Vigencia, id=vigencia_id, vehicle__owner=request.user)
+        
+        # Validar extensión
+        allowed_extensions = ['.pdf', '.jpg', '.jpeg', '.png', '.heic']
+        ext = os.path.splitext(archivo.name)[1].lower()
+        if ext not in allowed_extensions:
+            messages.error(request, f"Formato no permitido. Use: {', '.join(allowed_extensions)}")
+            return render(request, 'core/document_form.html', {'vigencias': vigencias})
+        
+        # Validar tamaño (10MB)
+        if archivo.size > 10 * 1024 * 1024:
+            messages.error(request, "Archivo muy grande. Máximo 10MB")
+            return render(request, 'core/document_form.html', {'vigencias': vigencias})
+        
+        # Crear documento
+        Documento.objects.create(
+            vigencia=vigencia,
+            nombre=nombre,
+            archivo=archivo,
+            tipo=tipo,
+            fecha_documento=request.POST.get('fecha_documento'),
+            notas=request.POST.get('notas', '')
+        )
+        
+        messages.success(request, "Documento subido correctamente")
+        return redirect('document_list')
+    
+    return render(request, 'core/document_form.html', {'vigencias': vigencias})
+
+@login_required
+def document_list(request):
+    """Lista de documentos"""
+    documentos = Documento.objects.filter(
+        vigencia__vehicle__owner=request.user
+    ).select_related('vigencia', 'vigencia__vehicle').order_by('-fecha_subida')
+    
+    return render(request, 'core/document_list.html', {'documentos': documentos})
+
+@login_required
+def document_delete(request, pk):
+    """Eliminar documento"""
+    documento = get_object_or_404(
+        Documento, 
+        pk=pk, 
+        vigencia__vehicle__owner=request.user
+    )
+    
+    if request.method == 'POST':
+        documento.archivo.delete()  # Elimina el archivo físico
+        documento.delete()
+        messages.success(request, "Documento eliminado")
+        return redirect('document_list')
+    
+    return render(request, 'core/document_confirm_delete.html', {'documento': documento})

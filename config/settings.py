@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
 
 # BASE_DIR = raíz del proyecto (donde está manage.py y .env)
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -41,6 +45,10 @@ CSRF_TRUSTED_ORIGINS = [x.strip() for x in _csrf.split(",") if x.strip()] if _cs
 
 SITE_ID = int(os.getenv("SITE_ID", "1"))
 
+# Rate limiting
+RATELIMIT_ENABLE = True
+RATELIMIT_VIEW = 'core.views.rate_limit_view'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -63,20 +71,27 @@ INSTALLED_APPS = [
     "core.apps.CoreConfig",
     "reminders",
     "billing.apps.BillingConfig",
+    # terceros
+    'axes',
+    'auditlog',
+    'ratelimit',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'core.security_middleware.SecurityHeadersMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'axes.middleware.AxesMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     "allauth.account.middleware.AccountMiddleware",
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = (
+    'axes.backends.AxesBackend',
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 )
@@ -258,3 +273,83 @@ WHATSAPP_ENABLED = env_bool("WHATSAPP_ENABLED", False)
 WHATSAPP_API_KEY = os.getenv("WHATSAPP_API_KEY", "")
 WHATSAPP_PHONE_NUMBER = os.getenv("WHATSAPP_PHONE_NUMBER", "")
 WHATSAPP_BUSINESS_ID = os.getenv("WHATSAPP_BUSINESS_ID", "")
+
+
+
+# PayU Configuration
+PAYU_API_KEY = os.getenv('PAYU_API_KEY', '')
+PAYU_API_LOGIN = os.getenv('PAYU_API_LOGIN', '')
+PAYU_MERCHANT_ID = os.getenv('PAYU_MERCHANT_ID', '')
+PAYU_ACCOUNT_ID = os.getenv('PAYU_ACCOUNT_ID', '')
+
+# URL Base para webhooks
+BASE_URL = os.getenv('BASE_URL', 'http://localhost:8000')
+
+
+# Twilio Configuration
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', '')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', '')
+TWILIO_WHATSAPP_NUMBER = os.getenv('TWILIO_WHATSAPP_NUMBER', '')
+
+
+# Configuración de axes
+AXES_FAILURE_LIMIT = 5  # 5 intentos fallidos
+AXES_COOLOFF_TIME = 1  # 1 hora de bloqueo
+AXES_RESET_ON_SUCCESS = True
+AXES_LOCKOUT_TEMPLATE = 'core/lockout.html'
+
+# Auditlog
+AUDITLOG_INCLUDE_ALL_MODELS = False
+
+
+
+# Sentry Configuration
+if not settings.DEBUG:
+    sentry_sdk.init(
+        dsn=os.getenv('SENTRY_DSN'),
+        integrations=[
+            DjangoIntegration(),
+            CeleryIntegration(),
+            RedisIntegration(),
+        ],
+        # Performance monitoring
+        traces_sample_rate=0.1,
+        # Send custom events
+        send_default_pii=True,
+        # Environment
+        environment=os.getenv('ENVIRONMENT', 'production'),
+        release=f"misvigencias@{os.getenv('VERSION', '1.0.0')}",
+    )
+    
+    
+    
+
+# DRF Configuration
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+}
+
+# JWT Configuration
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+}

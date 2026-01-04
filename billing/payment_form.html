@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Procesar Pago</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-shield-check text-success fs-1"></i>
+                        <h3 class="mt-3">Actualización a PRO</h3>
+                        <p class="lead">$19.900 COP / año</p>
+                    </div>
+                    
+                    <form method="post" action="{% url 'create_payment' %}">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <h5>Método de pago</h5>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment_method" id="card" value="card" checked>
+                                <label class="form-check-label" for="card">
+                                    <i class="bi bi-credit-card me-2"></i>Tarjeta de crédito/débito
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment_method" id="pse" value="pse">
+                                <label class="form-check-label" for="pse">
+                                    <i class="bi bi-bank me-2"></i>PSE (Pago en línea)
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Serás redirigido a PayU para completar el pago de forma segura.
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-lock me-2"></i>Pagar $19.900 COP
+                            </button>
+                            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

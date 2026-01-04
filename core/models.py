@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.core.validators import MinLengthValidator
 from .validators import validar_placa_colombiana
 from django.core.validators import RegexValidator
+from django.core.validators import FileExtensionValidator
 
 
 
@@ -133,3 +134,82 @@ class OfficialService(models.Model):
 
     def __str__(self) -> str:
         return f"{self.title} ({'Activo' if self.is_active else 'Inactivo'})"
+
+
+class Documento(models.Model):
+    """Documentos adjuntos a vigencias"""
+    vigencia = models.ForeignKey(Vigencia, on_delete=models.CASCADE, related_name="documentos")
+    nombre = models.CharField(max_length=255)
+    archivo = models.FileField(
+        upload_to='documentos/%Y/%m/%d/',
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=['pdf', 'jpg', 'jpeg', 'png', 'heic']
+            )
+        ],
+        max_length=500
+    )
+    tipo = models.CharField(
+        max_length=20,
+        choices=[
+            ('SOAT', 'SOAT'),
+            ('TECNO', 'Tecnomecánica'),
+            ('SEGURO', 'Seguro'),
+            ('POLIZA', 'Póliza'),
+            ('FACTURA', 'Factura'),
+            ('OTRO', 'Otro'),
+        ]
+    )
+    fecha_subida = models.DateTimeField(auto_now_add=True)
+    fecha_documento = models.DateField(null=True, blank=True)
+    es_valido = models.BooleanField(default=True)
+    notas = models.TextField(blank=True)
+    
+    class Meta:
+        ordering = ['-fecha_documento', '-fecha_subida']
+    
+    def __str__(self):
+        return f"{self.nombre} - {self.vigencia}"
+    
+    def extension(self):
+        return os.path.splitext(self.archivo.name)[1].lower()
+    
+    def es_imagen(self):
+        return self.extension() in ['.jpg', '.jpeg', '.png', '.heic']
+    
+    def es_pdf(self):
+        return self.extension() == '.pdf'
+    
+    
+
+
+class FCMToken(models.Model):
+    """Tokens Firebase Cloud Messaging por usuario/dispositivo"""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name="fcm_tokens"
+    )
+    token = models.CharField(max_length=255, unique=True)
+    device_type = models.CharField(
+        max_length=20,
+        choices=[
+            ('ANDROID', 'Android'),
+            ('IOS', 'iOS'),
+            ('WEB', 'Web'),
+        ],
+        default='ANDROID'
+    )
+    device_name = models.CharField(max_length=100, blank=True)
+    is_active = models.BooleanField(default=True)
+    last_used = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'is_active']),
+            models.Index(fields=['token']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.device_type}"

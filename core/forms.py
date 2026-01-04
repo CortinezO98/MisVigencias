@@ -1,5 +1,7 @@
+import os
 from django import forms
 from .models import VigenciaType
+from .models import Documento
 
 class VigenciaFilterForm(forms.Form):
     tipo = forms.ChoiceField(
@@ -73,3 +75,34 @@ class ProfileForm(forms.Form):
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
         label="Recordarme con"
     )
+    
+
+
+class DocumentoForm(forms.ModelForm):
+    class Meta:
+        model = Documento
+        fields = ['nombre', 'archivo', 'tipo', 'fecha_documento', 'notas']
+        widgets = {
+            'fecha_documento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'notas': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+        }
+    
+    def clean_archivo(self):
+        archivo = self.cleaned_data.get('archivo')
+        if archivo:
+            # Validar extensión
+            ext = os.path.splitext(archivo.name)[1].lower()
+            allowed = ['.pdf', '.jpg', '.jpeg', '.png', '.heic']
+            if ext not in allowed:
+                raise forms.ValidationError(
+                    f"Formato no permitido. Use: {', '.join(allowed)}"
+                )
+            
+            # Validar tamaño
+            max_size = 10 * 1024 * 1024  # 10MB
+            if archivo.size > max_size:
+                raise forms.ValidationError(
+                    f"Archivo muy grande. Máximo 10MB"
+                )
+        
+        return archivo

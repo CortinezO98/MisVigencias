@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-cloud-upload me-2"></i>
+                        Subir Documento
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="documentForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Vigencia asociada</label>
+                            <select class="form-select" name="vigencia_id" required>
+                                <option value="">Seleccionar vigencia...</option>
+                                {% for vigencia in vigencias %}
+                                <option value="{{ vigencia.id }}">
+                                    {{ vigencia.get_tipo_display }} - {{ vigencia.vehicle.alias }} 
+                                    (Vence: {{ vigencia.fecha_vencimiento|date:"d/m/Y" }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del documento</label>
+                            <input type="text" class="form-control" name="nombre" placeholder="Ej: SOAT 2024, Revisión tecnomecánica" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de documento</label>
+                            <select class="form-select" name="tipo" required>
+                                <option value="">Seleccionar tipo...</option>
+                                <option value="SOAT">SOAT</option>
+                                <option value="TECNO">Tecnomecánica</option>
+                                <option value="SEGURO">Seguro</option>
+                                <option value="POLIZA">Póliza</option>
+                                <option value="FACTURA">Factura</option>
+                                <option value="OTRO">Otro</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Archivo (PDF, JPG, PNG, HEIC)</label>
+                            <input type="file" class="form-control" name="archivo" accept=".pdf,.jpg,.jpeg,.png,.heic" required id="fileInput">
+                            <div class="form-text">
+                                Máximo 10MB. Formatos permitidos: PDF, JPG, PNG, HEIC
+                            </div>
+                            <div class="progress mt-2 d-none" id="uploadProgress">
+                                <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Fecha del documento</label>
+                            <input type="date" class="form-control" name="fecha_documento">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Notas (opcional)</label>
+                            <textarea class="form-control" name="notas" rows="3" placeholder="Observaciones sobre este documento..."></textarea>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-shield-lock me-2"></i>
+                            Tus documentos están almacenados de forma segura con encriptación.
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <i class="bi bi-upload me-1"></i>Subir Documento
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="fw-bold">
+                        <i class="bi bi-info-circle me-1"></i>Recomendaciones
+                    </h6>
+                    <ul class="mb-0">
+                        <li>Sube documentos legibles y completos</li>
+                        <li>Verifica que la fecha coincida con el documento</li>
+                        <li>Guarda copias de tus documentos originales</li>
+                        <li>Los documentos se comprimen automáticamente para ahorrar espacio</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('fileInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    
+    if (file && file.size > maxSize) {
+        alert('El archivo es muy grande. Máximo 10MB');
+        e.target.value = '';
+    }
+});
+
+// Upload con progress bar (si usas AJAX)
+document.getElementById('documentForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    const progressBar = document.getElementById('uploadProgress');
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Subiendo...';
+    
+    if (progressBar) {
+        progressBar.classList.remove('d-none');
+        // Simular progreso (en producción usarías AJAX con eventos reales)
+        let width = 0;
+        const interval = setInterval(() => {
+            if (width >= 90) {
+                clearInterval(interval);
+            } else {
+                width += 10;
+                progressBar.querySelector('.progress-bar').style.width = width + '%';
+            }
+        }, 200);
+    }
+});
+</script>
+{% endblock %}
