@@ -98,8 +98,8 @@
                         <a class="btn btn-outline-secondary btn-sm" href="{% url 'vehicle_create' %}">
                             <i class="bi bi-truck me-1"></i>Nuevo vehículo
                         </a>
-                        {% if is_free and total_vigencias >= 3 %}
-                        <a class="btn btn-outline-success btn-sm" href="{% url 'upgrade' %}">
+                        {% if is_free and total_vigencias >= limite_free %}
+                        <a class="btn btn-outline-success btn-sm" href="{% url 'pro_request' %}">
                             <i class="bi bi-rocket-takeoff me-1"></i>Actualizar a PRO
                         </a>
                         {% endif %}
