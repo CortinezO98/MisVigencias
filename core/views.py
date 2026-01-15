@@ -15,6 +15,7 @@ from .forms import ProfileForm
 from core.models import OfficialService
 from .models import Documento
 
+
 from .models import Vehicle, Vigencia, PlanChoices
 
 
@@ -483,3 +484,110 @@ def document_delete(request, pk):
         return redirect('document_list')
     
     return render(request, 'core/document_confirm_delete.html', {'documento': documento})
+
+
+
+@login_required
+def export_vigencias(request, format='pdf'):
+    """Exportar vigencias a PDF o Excel"""
+    vigencias = Vigencia.objects.filter(
+        vehicle__owner=request.user
+    ).select_related('vehicle').order_by('fecha_vencimiento')
+    
+    if format == 'pdf':
+        return generate_vigencias_pdf(request, vigencias)
+    elif format == 'excel':
+        return generate_vigencias_excel(request, vigencias)
+    else:
+        return HttpResponseBadRequest("Formato no soportado")
+
+@login_required
+def export_vehicle_report(request, pk):
+    """Exportar reporte de vehículo"""
+    vehicle = get_object_or_404(Vehicle, pk=pk, owner=request.user)
+    
+    pdf = generate_vehicle_report_pdf(vehicle)
+    
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="vehiculo_{vehicle.alias}_{datetime.now():%Y%m%d}.pdf"'
+    return response
+
+@login_required
+def generate_monthly_report(request):
+    """Generar reporte mensual automático"""
+    from django.core.mail import EmailMessage
+    from django.template.loader import render_to_string
+    
+    # Obtener datos del mes
+    hoy = timezone.now().date()
+    inicio_mes = hoy.replace(day=1)
+    fin_mes = hoy.replace(day=28) + timedelta(days=4)  # Último día del mes
+    
+    vigencias_mes = Vigencia.objects.filter(
+        vehicle__owner=request.user,
+        created_at__date__range=[inicio_mes, fin_mes]
+    )
+    
+    vigencias_proximas = Vigencia.objects.filter(
+        vehicle__owner=request.user,
+        activo=True,
+        fecha_vencimiento__range=[hoy, hoy + timedelta(days=30)]
+    )
+    
+    # Crear PDF
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    styles = getSampleStyleSheet()
+    
+    story = []
+    story.append(Paragraph(f"Reporte Mensual - {hoy:%B %Y}", styles['Heading1']))
+    story.append(Paragraph(f"Usuario: {request.user.username}", styles['Normal']))
+    story.append(Spacer(1, 30))
+    
+    # Resumen
+    story.append(Paragraph("Resumen del Mes", styles['Heading2']))
+    
+    resumen_data = [
+        ["Métrica", "Valor"],
+        ["Vigencias creadas este mes", len(vigencias_mes)],
+        ["Vigencias próximas (30 días)", len(vigencias_proximas)],
+        ["Vehículos registrados", Vehicle.objects.filter(owner=request.user).count()],
+        ["Notificaciones enviadas", "..."],  # Podrías obtener de NotificationLog
+    ]
+    
+    table = Table(resumen_data)
+    table.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
+    ]))
+    story.append(table)
+    
+    doc.build(story)
+    pdf = buffer.getvalue()
+    buffer.close()
+    
+    # Enviar por email
+    subject = f"Reporte Mensual Mis Vigencias - {hoy:%B %Y}"
+    body = render_to_string('emails/monthly_report.txt', {
+        'user': request.user,
+        'vigencias_mes': vigencias_mes.count(),
+        'vigencias_proximas': vigencias_proximas.count(),
+    })
+    
+    email = EmailMessage(
+        subject=subject,
+        body=body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[request.user.email],
+        attachments=[(f'reporte_{hoy:%Y%m}.pdf', pdf, 'application/pdf')]
+    )
+    
+    if request.POST.get('send_email'):
+        email.send()
+        messages.success(request, "Reporte enviado por email")
+        return redirect('dashboard')
+    
+    # Vista previa
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="reporte_mensual.pdf"'
+    return response

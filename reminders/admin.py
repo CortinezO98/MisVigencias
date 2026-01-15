@@ -8,3 +8,5 @@ class NotificationLogAdmin(admin.ModelAdmin):
     list_filter = ("channel", "status", "created_at")
     search_fields = ("vigencia__vehicle__alias", "vigencia__vehicle__plate")
     date_hierarchy = "created_at"   
+    ordering = ("-created_at",)
+    

@@ -213,3 +213,77 @@ class FCMToken(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.device_type}"
+    
+
+
+class Empresa(models.Model):
+    """Empresa con flota de vehículos"""
+    nombre = models.CharField(max_length=200)
+    nit = models.CharField(max_length=20, unique=True)
+    telefono = models.CharField(max_length=20, blank=True)
+    email = models.EmailField()
+    direccion = models.TextField(blank=True)
+    ciudad = models.CharField(max_length=100, default="Bogotá")
+    plan_empresa = models.CharField(
+        max_length=20,
+        choices=[
+            ('BASIC', 'Básico (10 vehículos)'),
+            ('STANDARD', 'Estándar (50 vehículos)'),
+            ('PREMIUM', 'Premium (200 vehículos)'),
+            ('ENTERPRISE', 'Enterprise (Ilimitado)'),
+        ],
+        default='BASIC'
+    )
+    max_vehiculos = models.IntegerField(default=10)
+    max_usuarios = models.IntegerField(default=3)
+    activa = models.BooleanField(default=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_vencimiento = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        verbose_name = "Empresa"
+        verbose_name_plural = "Empresas"
+    
+    def __str__(self):
+        return f"{self.nombre} ({self.nit})"
+    
+    def vehiculos_count(self):
+        return self.vehiculos.count()
+    
+    def usuarios_count(self):
+        return self.usuarios.count()
+
+class UsuarioEmpresa(models.Model):
+    """Usuario dentro de una empresa"""
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name="usuarios")
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    rol = models.CharField(
+        max_length=20,
+        choices=[
+            ('ADMIN', 'Administrador'),
+            ('GERENTE', 'Gerente de flota'),
+            ('OPERADOR', 'Operador'),
+            ('VISOR', 'Solo lectura'),
+        ],
+        default='OPERADOR'
+    )
+    departamento = models.CharField(max_length=100, blank=True)
+    telefono_extension = models.CharField(max_length=10, blank=True)
+    fecha_ingreso = models.DateField(auto_now_add=True)
+    activo = models.BooleanField(default=True)
+    
+    class Meta:
+        unique_together = ['empresa', 'user']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.empresa.nombre}"
+    
+    def permisos(self):
+        """Retorna permisos según rol"""
+        permisos = {
+            'ADMIN': ['crear', 'editar', 'eliminar', 'ver', 'reportes', 'configurar'],
+            'GERENTE': ['crear', 'editar', 'ver', 'reportes'],
+            'OPERADOR': ['crear', 'editar', 'ver'],
+            'VISOR': ['ver']
+        }
+        return permisos.get(self.rol, [])
